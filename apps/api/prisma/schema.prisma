@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  gerencia
+  usuario
+}
+
+enum UserStatus {
+  pending
+  active
+  rejected
+  disabled
+}
+
+enum ReservationStatus {
+  confirmed
+  cancelled
+  overridden
+}
+
+enum InviteStatus {
+  pending
+  accepted
+  declined
+}
+
+model User {
+  id           String     @id @default(uuid()) @db.Uuid
+  fullName     String     @map("full_name")
+  email        String     @unique
+  phone        String
+  passwordHash String?    @map("password_hash")
+  role         UserRole?
+  status       UserStatus @default(pending)
+  approvedById String?    @map("approved_by") @db.Uuid
+  approvedAt   DateTime?  @map("approved_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  approvedBy        User?                @relation("UserApprovals", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvals         User[]               @relation("UserApprovals")
+  reservations      Reservation[]        @relation("ReservationOrganizer")
+  invitations       ReservationInvitee[]
+  pushSubscriptions PushSubscription[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]           @relation("AuditActor")
+
+  @@index([status])
+  @@index([role])
+  @@map("users")
+}
+
+model Room {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  slug         String   @unique
+  locationNote String?  @map("location_note")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  reservations Reservation[]
+
+  @@map("rooms")
+}
+
+/// startTime / endTime se guardan como "HH:mm" (24h, zero-padded).
+/// El orden lexicografico coincide con el cronologico, por lo que la
+/// deteccion de solapes se resuelve con comparaciones directas en SQL.
+model Reservation {
+  id                       String            @id @default(uuid()) @db.Uuid
+  roomId                   String            @map("room_id") @db.Uuid
+  organizerId              String            @map("organizer_id") @db.Uuid
+  title                    String
+  description              String?
+  meetingDate              DateTime          @map("meeting_date") @db.Date
+  startTime                String            @map("start_time") @db.VarChar(5)
+  endTime                  String            @map("end_time") @db.VarChar(5)
+  status                   ReservationStatus @default(confirmed)
+  overriddenByReservationId String?          @map("overridden_by_reservation_id") @db.Uuid
+  createdAt                DateTime          @default(now()) @map("created_at")
+  updatedAt                DateTime          @updatedAt @map("updated_at")
+
+  room                Room                 @relation(fields: [roomId], references: [id])
+  organizer           User                 @relation("ReservationOrganizer", fields: [organizerId], references: [id])
+  overriddenBy        Reservation?         @relation("ReservationOverride", fields: [overriddenByReservationId], references: [id], onDelete: SetNull)
+  overrides           Reservation[]        @relation("ReservationOverride")
+  invitees            ReservationInvitee[]
+
+  @@index([roomId, meetingDate])
+  @@index([organizerId, meetingDate])
+  @@index([status])
+  @@map("reservations")
+}
+
+model ReservationInvitee {
+  id            String       @id @default(uuid()) @db.Uuid
+  reservationId String       @map("reservation_id") @db.Uuid
+  email         String
+  userId        String?      @map("user_id") @db.Uuid
+  inviteStatus  InviteStatus @default(accepted) @map("invite_status")
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([reservationId, email])
+  @@index([email])
+  @@map("reservation_invitees")
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+model Notification {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  type      String
+  title     String
+  body      String
+  payload   Json?
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @map("actor_id") @db.Uuid
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id") @db.Uuid
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([action])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}

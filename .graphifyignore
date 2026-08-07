@@ -1,0 +1,13 @@
+# Build / deps — no grafo de artefactos
+node_modules/
+dist/
+build/
+coverage/
+.output/
+apps/web/.output/
+**/node_modules/
+**/.output/
+**/dist/
+
+# Graphify self
+graphify-out/cache/

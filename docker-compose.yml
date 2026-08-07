@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: nexus-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nexus
+      POSTGRES_PASSWORD: nexus
+      POSTGRES_DB: nexus_calendar
+    # 5433 en el host: 5432 suele estar ocupado por una instalacion local de Postgres.
+    ports:
+      - "5433:5432"
+    volumes:
+      - nexus_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexus -d nexus_calendar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: nexus-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  nexus_pgdata:

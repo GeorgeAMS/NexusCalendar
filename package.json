@@ -1,0 +1,16 @@
+{
+  "name": "nexus-calendar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PWA de reserva de salas - Clinica Regional del San Jorge",
+  "scripts": {
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "install:all": "npm --prefix apps/api install && npm --prefix apps/web install",
+    "db:migrate": "npm --prefix apps/api run prisma:migrate",
+    "db:seed": "npm --prefix apps/api run db:seed",
+    "db:seed:demo": "npm --prefix apps/api run db:seed:demo",
+    "api:dev": "npm --prefix apps/api run start:dev",
+    "web:dev": "npm --prefix apps/web run dev"
+  }
+}
