@@ -16,7 +16,7 @@ function prepareLogoTexture(texture: THREE.Texture): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) return texture as THREE.CanvasTexture;
 
   ctx.drawImage(image, 0, 0);
@@ -31,13 +31,13 @@ function prepareLogoTexture(texture: THREE.Texture): THREE.CanvasTexture {
     const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
     const chroma = Math.max(r, g, b) - Math.min(r, g, b);
 
-    // Plate: near-black + low chroma → transparent.
-    // Keep navy lettering (still dark, but with more blue chroma).
+    // Aggressive plate knockout: pure/near-black studio matte → transparent.
+    // Keep navy lettering (dark but with blue chroma).
     let alpha = a / 255;
-    if (luminance < 22 && chroma < 18) {
+    if (luminance < 38 && chroma < 28) {
       alpha = 0;
-    } else if (luminance < 42 && chroma < 28) {
-      alpha *= (luminance - 22) / 20;
+    } else if (luminance < 58 && chroma < 36) {
+      alpha *= (luminance - 38) / 20;
     }
 
     // Slight lift on deep navy type so it separates from the page navy.
@@ -78,8 +78,16 @@ function makeRadialGlowTexture(inner: string, mid: string, outer = "rgba(0,0,0,0
 /**
  * Nearly-static logo with a soft atmospheric glow (no black matte card).
  */
-export default function NexusLogoScene({ variant = "hero" }: { variant?: Variant }) {
+export default function NexusLogoScene({
+  variant = "hero",
+  onReady,
+}: {
+  variant?: Variant;
+  onReady?: () => void;
+}) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -92,13 +100,20 @@ export default function NexusLogoScene({ variant = "hero" }: { variant?: Variant
     const camera = new THREE.PerspectiveCamera(isMark ? 36 : 40, 1, 0.1, 50);
     camera.position.set(0, 0, isMark ? 4.2 : 5);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+      premultipliedAlpha: false,
+      powerPreference: "low-power",
+    });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
+    renderer.setClearAlpha(0);
     container.appendChild(renderer.domElement);
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.height = "100%";
     renderer.domElement.style.display = "block";
+    renderer.domElement.style.background = "transparent";
 
     const group = new THREE.Group();
     scene.add(group);
@@ -159,10 +174,14 @@ export default function NexusLogoScene({ variant = "hero" }: { variant?: Variant
         const aspect = fullAspect / cropH;
         const height = isMark ? 1.7 : 2.65;
         logoMesh.scale.set(height * aspect, height, 1);
+
+        // Paint one transparent frame before revealing (avoids black WebGL flash).
+        renderer.render(scene, camera);
+        onReadyRef.current?.();
       },
       undefined,
       () => {
-        // Texture failed — keep empty transparent canvas.
+        // Texture failed — keep CSS fallback visible.
       },
     );
 
