@@ -1,57 +1,62 @@
-# Railway Spec (futuro — no ejecutar aún)
+# Railway Spec — despliegue producción
 
-Documento de preparación. **No desplegar** hasta tener repo GitHub y visto bueno.
-
-## Topología objetivo
+Topología:
 
 ```text
 Railway Project: nexus-calendar
-  ├─ Service: api          (NestJS)
-  ├─ Plugin:  PostgreSQL
-  └─ Service: web          (build TanStack Start / Vite + Nitro)
+  ├─ PostgreSQL
+  ├─ Service: api   (Root Directory = apps/api)
+  └─ Service: web   (Root Directory = apps/web)
 ```
 
-Railway puede hospedar **api + postgres + web**, o solo api+postgres si el front vive en otro host.
+Repo recomendado: `GeorgeAMS/NexusCalendar` (o el remoto que uses).
 
-## Variables en Railway (api)
+## API (`apps/api`)
 
-Reutilizar las de [technical-spec.md](technical-spec.md):
+Archivo: [`apps/api/railway.toml`](../apps/api/railway.toml)
 
-- `DATABASE_URL` (plugin)
-- `JWT_*`, `CORS_ORIGIN` (URL del front)
-- `SMTP_*`, `MAIL_FROM`
-- `VAPID_*`
-- `ADMIN_SEED_*` (solo primer deploy; luego rotar / desactivar seed en prod)
+- Build: `npx prisma generate && npm run build`
+- Start: `npx prisma migrate deploy && node dist/main.js`
+- Healthcheck: `GET /api/v1/health`
 
-## Release command sugerido
+### Variables
 
-```bash
-npx prisma migrate deploy && node dist/main.js
-```
+| Variable | Notas |
+|----------|--------|
+| `NODE_ENV` | `production` |
+| `PORT` | lo inyecta Railway |
+| `DATABASE_URL` | Reference Variable del plugin Postgres |
+| `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` | secretos largos |
+| `JWT_ACCESS_TTL` / `JWT_REFRESH_TTL` | `15m` / `7d` |
+| `APP_TIMEZONE` | `America/Bogota` |
+| `CORS_ORIGIN` | URL HTTPS exacta del servicio `web` |
+| `APP_WEB_URL` | misma URL del front |
+| `SMTP_*` / `MAIL_FROM` | SMTP real (Gmail app password o Resend) |
+| `ADMIN_SEED_*` | solo primer seed; rotar después |
+| `VAPID_*` | opcional |
 
-O build: `npm run build` + start `node dist/main.js`.
+Seed una vez (Railway shell): `npx prisma db seed`
 
-## Healthcheck
+## Web (`apps/web`)
 
-`GET /api/v1/health`
+Archivo: [`apps/web/railway.toml`](../apps/web/railway.toml)
 
-## CORS
+- Build: `npm run build`
+- Start: `npm run start:prod` → `node .output/server/index.mjs`
+- Variable de **build**: `VITE_API_URL=https://<api>.up.railway.app/api/v1`
 
-`CORS_ORIGIN` = origen exacto del front. Sin `*`.
+## Orden de deploy
 
-## Checklist pre-deploy
+1. Postgres
+2. api (migrate + dominio)
+3. web (`VITE_API_URL` + dominio)
+4. Actualizar `CORS_ORIGIN` / `APP_WEB_URL` en api → redeploy api
 
-1. Repo en GitHub conectado a Railway.
-2. Migraciones probadas en local con `migrate deploy`.
-3. Secretos en Railway Variables (no en código).
-4. SMTP real de la clínica o proveedor.
-5. HTTPS (Railway lo provee).
+## Checklist
+
+1. Repo GitHub conectado a Railway.
+2. Migraciones con `prisma migrate deploy` en start.
+3. Secretos solo en Variables de Railway.
+4. SMTP real.
+5. HTTPS (Railway).
 6. Admin seed ejecutado una vez; password rotado.
-
-## Lo que NO hacer ahora
-
-- Crear proyecto Railway.
-- Exponer la API a internet sin auth/seed seguros.
-- Apuntar DNS de la clínica.
-
-Cuando toque desplegar, abrir una tarea explícita y seguir este spec.
