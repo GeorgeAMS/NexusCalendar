@@ -1,3 +1,5 @@
+import { useRef } from "react";
+
 import type { Reservation, Room } from "@/lib/api/types";
 import { addDaysToIsoDate, monthLabel, todayInBogota, weekdayIndex } from "@/lib/bogota";
 import { roomColorVar } from "./calendar-utils";
@@ -35,12 +37,31 @@ export function MonthGrid({
   const firstDay = days[0] ?? anchorDate;
   const leadingBlanks = (weekdayIndex(firstDay) + 6) % 7;
   const today = todayInBogota();
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
 
   const byDate = new Map<string, Reservation[]>();
   for (const reservation of reservations) {
     const list = byDate.get(reservation.meetingDate) ?? [];
     list.push(reservation);
     byDate.set(reservation.meetingDate, list);
+  }
+
+  function handleDayPointerDown(event: React.PointerEvent) {
+    pointerStart.current = { x: event.clientX, y: event.clientY };
+  }
+
+  function handleDayClick(event: React.MouseEvent, date: string) {
+    const start = pointerStart.current;
+    pointerStart.current = null;
+    if (start) {
+      const dx = Math.abs(event.clientX - start.x);
+      const dy = Math.abs(event.clientY - start.y);
+      // Ignore click synthesized after a vertical scroll/swipe.
+      if (dx > 10 || dy > 10) {
+        return;
+      }
+    }
+    onSelectDate(date);
   }
 
   return (
@@ -53,11 +74,11 @@ export function MonthGrid({
           <span key={`${label}-${index}`}>{label}</span>
         ))}
       </div>
-      <div className="relative mt-1 grid grid-cols-7 gap-1">
+      <div className="relative mt-1 grid grid-cols-7 gap-1 touch-pan-y">
         {Array.from({ length: leadingBlanks }).map((_, index) => (
           <span key={`blank-${index}`} />
         ))}
-        {days.map((date, index) => {
+        {days.map((date) => {
           const dayReservations = byDate.get(date) ?? [];
           const isSelected = date === selectedDate;
           const isToday = date === today;
@@ -65,13 +86,13 @@ export function MonthGrid({
             <button
               key={date}
               type="button"
-              onClick={() => onSelectDate(date)}
-              style={{ animationDelay: `${Math.min(index * 10, 240)}ms` }}
+              onPointerDown={handleDayPointerDown}
+              onClick={(event) => handleDayClick(event, date)}
               className={cn(
-                "flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border text-sm transition-all duration-200 animate-pop active:scale-95",
+                "flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border text-sm transition-colors duration-150 active:scale-95",
                 isSelected
-                  ? "border-accent bg-accent text-accent-foreground shadow-soft animate-day-glow"
-                  : "border-transparent hover:-translate-y-0.5 hover:border-accent/30 hover:bg-accent/8 hover:shadow-soft",
+                  ? "border-accent bg-accent text-accent-foreground shadow-soft"
+                  : "border-transparent hover:border-accent/30 hover:bg-accent/8",
                 isToday && !isSelected && "border-accent/50 bg-accent/5",
               )}
             >
@@ -79,15 +100,14 @@ export function MonthGrid({
                 {Number(date.slice(8, 10))}
               </span>
               <span className="flex h-1.5 items-center gap-0.5">
-                {dayReservations.slice(0, 3).map((reservation, dotIndex) => (
+                {dayReservations.slice(0, 3).map((reservation) => (
                   <span
                     key={reservation.id}
-                    className={cn("size-1.5 rounded-full", !isSelected && "animate-dot-pulse")}
+                    className="size-1.5 rounded-full"
                     style={{
                       backgroundColor: isSelected
                         ? "var(--accent-foreground)"
                         : roomColorVar(rooms, reservation.roomId),
-                      animationDelay: `${dotIndex * 280}ms`,
                     }}
                   />
                 ))}

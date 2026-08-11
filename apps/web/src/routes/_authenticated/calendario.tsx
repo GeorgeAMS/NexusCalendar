@@ -29,7 +29,16 @@ import {
 } from "@/lib/bogota";
 import { cn } from "@/lib/utils";
 
+type CalSearch = { date?: string | undefined };
+
+function isIsoDate(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
 export const Route = createFileRoute("/_authenticated/calendario")({
+  validateSearch: (search: Record<string, unknown>): CalSearch => ({
+    date: typeof search["date"] === "string" && isIsoDate(search["date"]) ? search["date"] : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Calendario de salas — Nexus Calendar" },
@@ -52,23 +61,38 @@ function CalendarPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { date: dateFromUrl } = Route.useSearch();
 
-  const [selectedDate, setSelectedDate] = useState(() => todayInBogota());
+  const selectedDate = dateFromUrl ?? todayInBogota();
   const [roomFilter, setRoomFilter] = useState<string>("all");
   const [detail, setDetail] = useState<Reservation | null>(null);
+
+  function setSelectedDate(next: string | ((current: string) => string)) {
+    const value = typeof next === "function" ? next(selectedDate) : next;
+    void navigate({
+      to: "/calendario",
+      search: { date: value },
+      replace: true,
+    });
+  }
 
   const canCreate = canCreateReservations(user);
 
   const monthStart = `${selectedDate.slice(0, 7)}-01`;
   const monthEnd = addDaysToIsoDate(monthStart, 41);
 
-  const roomsQuery = useQuery({ queryKey: ["rooms"], queryFn: () => roomsApi.list() });
+  const roomsQuery = useQuery({
+    queryKey: ["rooms"],
+    queryFn: () => roomsApi.list(),
+    placeholderData: (previous) => previous,
+  });
   const rooms = useMemo(() => roomsQuery.data?.items ?? [], [roomsQuery.data]);
 
   const reservationsQuery = useQuery({
     queryKey: ["reservations", monthStart, monthEnd],
     // Sin `status`: el API devuelve solo las confirmadas.
     queryFn: () => reservationsApi.list({ from: monthStart, to: monthEnd }),
+    placeholderData: (previous) => previous,
   });
 
   const allReservations = reservationsQuery.data?.items ?? [];
@@ -91,7 +115,7 @@ function CalendarPage() {
 
   return (
     <div className="space-y-4">
-      <header className="flex flex-wrap items-end justify-between gap-3 animate-rise">
+      <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             Ocupación de salas

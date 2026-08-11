@@ -5,25 +5,22 @@ import { cn } from "@/lib/utils";
 
 const NexusLogoScene = lazy(() => import("./NexusLogoScene"));
 
+const LOGO_SRC = "/brand/nexus-logo-transparent.png";
+
 type Variant = "hero" | "mark";
 
-function LogoFallback({ variant, className }: { variant: Variant; className?: string }) {
+function LogoImage({ className }: { className?: string }) {
   return (
     <img
-      src="/brand/nexus-logo.png"
+      src={LOGO_SRC}
       alt=""
       aria-hidden
-      className={cn(
-        "h-full w-full object-contain",
-        /* Black studio plate disappears against navy / sidebar. */
-        variant === "hero" ? "mix-blend-lighten" : "mix-blend-screen",
-        className,
-      )}
+      className={cn("h-full w-full object-contain", className)}
     />
   );
 }
 
-/** Nearly-static Nexus logo via Three.js. Never renders during SSR. */
+/** Nexus logo. Hero is a transparent PNG (no mix-blend / WebGL). */
 export function NexusLogo3D({
   variant = "hero",
   className = "",
@@ -32,6 +29,7 @@ export function NexusLogo3D({
   className?: string;
 }) {
   const [sceneReady, setSceneReady] = useState(false);
+  const useWebGl = variant === "mark";
 
   return (
     <div
@@ -43,29 +41,29 @@ export function NexusLogo3D({
       role="img"
       aria-label="Nexus Calendar"
     >
-      {/* Always under the canvas so reloads never flash a black matte. */}
       <div
         className={cn(
-          "absolute inset-0 transition-opacity duration-300",
-          sceneReady ? "pointer-events-none opacity-0" : "opacity-100",
+          "absolute inset-0",
+          useWebGl && sceneReady ? "pointer-events-none opacity-0" : "opacity-100",
         )}
       >
-        <LogoFallback variant={variant} />
+        <LogoImage />
       </div>
 
-      <ClientOnly fallback={null}>
-        <Suspense fallback={null}>
-          <div
-            className={cn(
-              "absolute inset-0 transition-opacity duration-300",
-              sceneReady ? "opacity-100" : "opacity-0",
-              variant === "hero" ? "mix-blend-lighten" : "mix-blend-screen",
-            )}
-          >
-            <NexusLogoScene variant={variant} onReady={() => setSceneReady(true)} />
-          </div>
-        </Suspense>
-      </ClientOnly>
+      {useWebGl ? (
+        <ClientOnly fallback={null}>
+          <Suspense fallback={null}>
+            <div
+              className={cn(
+                "absolute inset-0 transition-opacity duration-300",
+                sceneReady ? "opacity-100" : "opacity-0",
+              )}
+            >
+              <NexusLogoScene variant={variant} onReady={() => setSceneReady(true)} />
+            </div>
+          </Suspense>
+        </ClientOnly>
+      ) : null}
     </div>
   );
 }

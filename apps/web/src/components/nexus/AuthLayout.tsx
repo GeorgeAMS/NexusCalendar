@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { NexusLogo3D } from "./NexusLogo3D";
 
@@ -57,6 +57,8 @@ function useAmbientLights(enabled: boolean) {
   return { stageRef, glowWarmRef, glowCoolRef };
 }
 
+const AUTH_BG = "oklch(0.19 0.055 261)";
+
 export function AuthLayout({
   title,
   subtitle,
@@ -74,6 +76,17 @@ export function AuthLayout({
   }, []);
 
   const { stageRef, glowWarmRef, glowCoolRef } = useAmbientLights(motionOk);
+
+  useLayoutEffect(() => {
+    const prevBody = document.body.style.backgroundColor;
+    const prevHtml = document.documentElement.style.backgroundColor;
+    document.body.style.backgroundColor = AUTH_BG;
+    document.documentElement.style.backgroundColor = AUTH_BG;
+    return () => {
+      document.body.style.backgroundColor = prevBody;
+      document.documentElement.style.backgroundColor = prevHtml;
+    };
+  }, []);
 
   return (
     <div ref={stageRef} className="relative flex min-h-screen flex-col overflow-hidden surface-hero">
@@ -117,10 +130,7 @@ export function AuthLayout({
             <p className="mt-3 text-sm leading-relaxed text-navy-foreground/70">{subtitle}</p>
           </header>
 
-          <div
-            className="rounded-3xl border border-navy-foreground/10 bg-card/95 p-6 shadow-lift backdrop-blur-md animate-pop sm:p-7"
-            style={{ animationDelay: "80ms" }}
-          >
+          <div className="rounded-3xl border border-navy-foreground/10 bg-card/95 p-6 shadow-lift backdrop-blur-md animate-pop sm:p-7">
             <h2 className="font-display text-lg font-semibold tracking-tight text-foreground">
               {title}
             </h2>

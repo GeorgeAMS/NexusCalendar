@@ -41,15 +41,14 @@ export function DayGrid({
         </div>
 
         <div className="relative flex-1">
-          {HOURS.slice(0, -1).map((hour, index) => (
+          {HOURS.slice(0, -1).map((hour) => (
             <button
               key={hour}
               type="button"
               disabled={!onEmptySlot}
               onClick={() => onEmptySlot?.(`${String(hour).padStart(2, "0")}:00`)}
-              style={{ animationDelay: `${Math.min(index * 25, 200)}ms` }}
               className={cn(
-                "block h-16 w-full border-t border-dashed border-border/70 text-left transition-all duration-200 animate-rise",
+                "block h-16 w-full border-t border-dashed border-border/70 text-left transition-colors duration-150",
                 "hover:bg-gradient-to-r hover:from-accent/8 hover:to-transparent",
                 "disabled:cursor-default disabled:hover:bg-transparent",
               )}
@@ -75,7 +74,7 @@ export function DayGrid({
                     boxShadow: `0 8px 22px -16px color-mix(in oklab, ${color} 55%, transparent)`,
                     animationDelay: `${index * 55}ms`,
                   }}
-                  className="pointer-events-auto absolute overflow-hidden rounded-lg border border-border border-l-4 p-2 pr-2.5 text-left transition-all duration-250 animate-block-in hover:z-10 hover:-translate-y-0.5 hover:scale-[1.015] hover:brightness-[1.03] active:scale-[0.99]"
+                  className="pointer-events-auto absolute overflow-hidden rounded-lg border border-border border-l-4 p-2 pr-2.5 text-left transition-colors duration-150 hover:z-10 hover:brightness-[1.03] active:scale-[0.99]"
                 >
                   <span
                     aria-hidden

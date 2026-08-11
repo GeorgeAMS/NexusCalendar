@@ -134,7 +134,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       </header>
 
-      <main className="relative z-10 mx-auto w-full max-w-5xl flex-1 px-4 pb-28 pt-5 md:pb-12 animate-rise">
+      <main className="relative z-10 mx-auto w-full max-w-5xl flex-1 px-4 pb-28 pt-5 md:pb-12">
         {children}
       </main>
 

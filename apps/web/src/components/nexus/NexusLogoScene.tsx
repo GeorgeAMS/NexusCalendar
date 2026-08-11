@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-const LOGO_URL = "/brand/nexus-logo.png";
+const LOGO_URL = "/brand/nexus-logo-transparent.png";
 
 type Variant = "hero" | "mark";
 
