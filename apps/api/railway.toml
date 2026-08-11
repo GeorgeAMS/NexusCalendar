@@ -5,7 +5,7 @@ buildCommand = "npx prisma generate && npx nest build"
 nixpacksConfigPath = "nixpacks.toml"
 
 [deploy]
-startCommand = "npx prisma migrate deploy && node dist/main.js"
+startCommand = "npx prisma migrate deploy && npx prisma db seed && node dist/main.js"
 healthcheckPath = "/api/v1/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"

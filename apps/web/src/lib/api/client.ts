@@ -1,7 +1,7 @@
 import type { ApiErrorCode, RefreshResponse } from "./types";
 
 export const API_URL: string =
-  (import.meta.env["VITE_API_URL"] as string | undefined) ?? "http://localhost:3000/api/v1";
+  (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:3000/api/v1";
 
 const ACCESS_KEY = "nexus.accessToken";
 const REFRESH_KEY = "nexus.refreshToken";
