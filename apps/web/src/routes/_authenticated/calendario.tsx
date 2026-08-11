@@ -283,10 +283,10 @@ function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all active:scale-95",
+        "flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 active:scale-95",
         active
-          ? "border-accent bg-accent/12 text-foreground"
-          : "border-border bg-card text-muted-foreground hover:border-accent/40",
+          ? "border-accent bg-accent/12 text-foreground shadow-[0_0_0_3px_oklch(0.68_0.176_48_/_0.12)]"
+          : "border-border bg-card/90 text-muted-foreground hover:border-accent/40 hover:bg-accent/5 hover:text-foreground",
       )}
     >
       {color && <span className="size-2 rounded-full" style={{ backgroundColor: color }} />}

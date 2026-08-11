@@ -8,6 +8,7 @@ import {
   roomColorVar,
   withColumns,
 } from "./calendar-utils";
+import { cn } from "@/lib/utils";
 
 const HOURS = Array.from(
   { length: (DAY_END_MIN - DAY_START_MIN) / 60 + 1 },
@@ -29,7 +30,7 @@ export function DayGrid({
   const columns = Math.max(1, ...laidOut.map((item) => item.column + 1));
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-3 shadow-soft">
+    <div className="cal-panel rounded-2xl border border-border bg-card/95 p-3 shadow-soft backdrop-blur-sm">
       <div className="relative flex">
         <div className="w-12 shrink-0">
           {HOURS.slice(0, -1).map((hour) => (
@@ -40,13 +41,18 @@ export function DayGrid({
         </div>
 
         <div className="relative flex-1">
-          {HOURS.slice(0, -1).map((hour) => (
+          {HOURS.slice(0, -1).map((hour, index) => (
             <button
               key={hour}
               type="button"
               disabled={!onEmptySlot}
               onClick={() => onEmptySlot?.(`${String(hour).padStart(2, "0")}:00`)}
-              className="block h-16 w-full border-t border-dashed border-border/70 text-left transition-colors hover:bg-accent/5 disabled:cursor-default disabled:hover:bg-transparent"
+              style={{ animationDelay: `${Math.min(index * 25, 200)}ms` }}
+              className={cn(
+                "block h-16 w-full border-t border-dashed border-border/70 text-left transition-all duration-200 animate-rise",
+                "hover:bg-gradient-to-r hover:from-accent/8 hover:to-transparent",
+                "disabled:cursor-default disabled:hover:bg-transparent",
+              )}
               aria-label={`Reservar a las ${String(hour).padStart(2, "0")}:00`}
             />
           ))}
@@ -65,11 +71,19 @@ export function DayGrid({
                     left: `${(column / columns) * 100}%`,
                     width: `${(1 / columns) * 100}%`,
                     borderLeftColor: color,
-                    backgroundColor: `color-mix(in oklab, ${color} 14%, var(--card))`,
-                    animationDelay: `${index * 40}ms`,
+                    backgroundColor: `color-mix(in oklab, ${color} 16%, var(--card))`,
+                    boxShadow: `0 8px 22px -16px color-mix(in oklab, ${color} 55%, transparent)`,
+                    animationDelay: `${index * 55}ms`,
                   }}
-                  className="pointer-events-auto absolute overflow-hidden rounded-lg border border-border border-l-4 p-2 pr-2.5 text-left shadow-soft transition-transform duration-200 animate-pop hover:z-10 hover:scale-[1.01] active:scale-[0.99]"
+                  className="pointer-events-auto absolute overflow-hidden rounded-lg border border-border border-l-4 p-2 pr-2.5 text-left transition-all duration-250 animate-block-in hover:z-10 hover:-translate-y-0.5 hover:scale-[1.015] hover:brightness-[1.03] active:scale-[0.99]"
                 >
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-y-0 left-0 w-1 opacity-80"
+                    style={{
+                      background: `linear-gradient(180deg, ${color}, transparent)`,
+                    }}
+                  />
                   <p className="truncate text-xs font-semibold text-foreground">
                     {reservation.title}
                   </p>

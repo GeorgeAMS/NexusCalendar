@@ -44,16 +44,16 @@ export function MonthGrid({
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-3 shadow-soft">
-      <p className="mb-2 text-center font-display text-sm font-semibold capitalize text-foreground">
+    <div className="cal-panel rounded-2xl border border-border bg-card/95 p-3 shadow-soft backdrop-blur-sm">
+      <p className="relative mb-2 text-center font-display text-sm font-semibold capitalize text-foreground">
         {monthLabel(year, monthIndex)}
       </p>
-      <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-muted-foreground">
+      <div className="relative grid grid-cols-7 gap-1 text-center text-[11px] text-muted-foreground">
         {WEEK_LABELS.map((label, index) => (
           <span key={`${label}-${index}`}>{label}</span>
         ))}
       </div>
-      <div className="mt-1 grid grid-cols-7 gap-1">
+      <div className="relative mt-1 grid grid-cols-7 gap-1">
         {Array.from({ length: leadingBlanks }).map((_, index) => (
           <span key={`blank-${index}`} />
         ))}
@@ -66,27 +66,28 @@ export function MonthGrid({
               key={date}
               type="button"
               onClick={() => onSelectDate(date)}
-              style={{ animationDelay: `${Math.min(index * 8, 200)}ms` }}
+              style={{ animationDelay: `${Math.min(index * 10, 240)}ms` }}
               className={cn(
-                "flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border text-sm transition-all duration-150 animate-pop active:scale-95",
+                "flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border text-sm transition-all duration-200 animate-pop active:scale-95",
                 isSelected
-                  ? "border-accent bg-accent text-accent-foreground shadow-soft"
-                  : "border-transparent hover:border-border hover:bg-secondary",
-                isToday && !isSelected && "border-accent/50",
+                  ? "border-accent bg-accent text-accent-foreground shadow-soft animate-day-glow"
+                  : "border-transparent hover:-translate-y-0.5 hover:border-accent/30 hover:bg-accent/8 hover:shadow-soft",
+                isToday && !isSelected && "border-accent/50 bg-accent/5",
               )}
             >
               <span className={cn("font-medium", isSelected && "font-semibold")}>
                 {Number(date.slice(8, 10))}
               </span>
               <span className="flex h-1.5 items-center gap-0.5">
-                {dayReservations.slice(0, 3).map((reservation) => (
+                {dayReservations.slice(0, 3).map((reservation, dotIndex) => (
                   <span
                     key={reservation.id}
-                    className="size-1.5 rounded-full"
+                    className={cn("size-1.5 rounded-full", !isSelected && "animate-dot-pulse")}
                     style={{
                       backgroundColor: isSelected
                         ? "var(--accent-foreground)"
                         : roomColorVar(rooms, reservation.roomId),
+                      animationDelay: `${dotIndex * 280}ms`,
                     }}
                   />
                 ))}
