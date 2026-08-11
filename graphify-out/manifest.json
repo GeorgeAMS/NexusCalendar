@@ -1,36 +1,36 @@
 {
   "C:\\NexusCalendar\\package.json": {
-    "mtime": 1786045398.121701,
+    "mtime": 1786112155.7268353,
     "ast_hash": "45be1065bbdb8b8b964459d0ae647328",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\nest-cli.json": {
-    "mtime": 1786030230.960481,
+    "mtime": 1786112155.751352,
     "ast_hash": "fa439650fa28a1a7aa8c2b6d81c8cc20",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\package.json": {
-    "mtime": 1786034027.9029977,
-    "ast_hash": "57a3429aad460b1ac868c8927a57388a",
+    "mtime": 1786112155.7423527,
+    "ast_hash": "b34580477e42171a2ad0e1139e8f0f71",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\tsconfig.build.json": {
-    "mtime": 1786030230.9451547,
+    "mtime": 1786112155.7258356,
     "ast_hash": "4e506ae354e57ddc8f18b4a01485f2d3",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\tsconfig.json": {
-    "mtime": 1786030230.9634798,
+    "mtime": 1786112155.7988696,
     "ast_hash": "3367421b5fe6bc82dbb059ca16d517c0",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\prisma\\seed-demo.ts": {
-    "mtime": 1786032639.3315825,
+    "mtime": 1786112155.736351,
     "ast_hash": "c73c90f96ff9462937b1bf38caa0801e",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\prisma\\seed.ts": {
-    "mtime": 1786030274.8488438,
+    "mtime": 1786112155.7238355,
     "ast_hash": "b085e0e7e79bfe97726c028de64a3a6e",
     "semantic_hash": ""
   },
@@ -40,267 +40,267 @@
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\app.module.ts": {
-    "mtime": 1786032474.3519173,
+    "mtime": 1786461092.0036733,
     "ast_hash": "a1efd599a161e92178f7cb71f30859c8",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\main.ts": {
-    "mtime": 1786030241.5089207,
+    "mtime": 1786112155.7988696,
     "ast_hash": "0c16bd136fccd7fa4b11ba4829465eba",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\audit\\audit.module.ts": {
-    "mtime": 1786031288.492209,
+    "mtime": 1786112155.7908688,
     "ast_hash": "02bf0e831adf838f07fb8ea881affa74",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\audit\\audit.service.ts": {
-    "mtime": 1786031287.273903,
+    "mtime": 1786112155.736351,
     "ast_hash": "50b70547418c50222a34b1737ae3cfca",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\auth\\auth.controller.ts": {
-    "mtime": 1786031333.5518472,
+    "mtime": 1786112155.7908688,
     "ast_hash": "e1e0d25e25ca7ee4872030f33aa1f0f0",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\auth\\auth.module.ts": {
-    "mtime": 1786031982.2320282,
+    "mtime": 1786112155.7988696,
     "ast_hash": "1d1151dcd414132d26d18b13c5dbe63c",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\auth\\auth.service.spec.ts": {
-    "mtime": 1786031372.1868966,
+    "mtime": 1786112155.734352,
     "ast_hash": "4f3008e9eeb450705b578a77c6e9dd72",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\auth\\auth.service.ts": {
-    "mtime": 1786031413.3621335,
+    "mtime": 1786461067.9219916,
     "ast_hash": "60a1c83018a13fa803973b5a57c1834b",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\auth\\current-user.decorator.ts": {
-    "mtime": 1786031330.1409314,
+    "mtime": 1786112155.7908688,
     "ast_hash": "f29a44e9a03e51448c95257e9da194d3",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\auth\\jwt-auth.guard.ts": {
-    "mtime": 1786031327.003106,
+    "mtime": 1786112155.7323515,
     "ast_hash": "9791f61da20d87cbc9d87e58fbf358c6",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\auth\\roles.decorator.ts": {
-    "mtime": 1786031892.8636243,
+    "mtime": 1786112155.7633536,
     "ast_hash": "7c717d8fae2cb5714bda692c0f867cc1",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\auth\\roles.guard.ts": {
-    "mtime": 1786031898.1656902,
+    "mtime": 1786112155.734352,
     "ast_hash": "4c683e879d8c78da19b96c566f3e1a67",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\auth\\dto\\login.dto.ts": {
-    "mtime": 1786031297.935944,
+    "mtime": 1786112155.7998698,
     "ast_hash": "03a058eaf7a92c61b8223f3d27be1252",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\auth\\dto\\refresh.dto.ts": {
-    "mtime": 1786031298.4487493,
+    "mtime": 1786112155.7818701,
     "ast_hash": "98a7987c61f2ee818ba74e407b632bb9",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\auth\\dto\\register.dto.ts": {
-    "mtime": 1786031295.647035,
+    "mtime": 1786112155.755354,
     "ast_hash": "8c91d133e657d2ce5a55f21f9016e6df",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\common\\app-exception.filter.ts": {
-    "mtime": 1786030263.3989184,
+    "mtime": 1786112155.7998698,
     "ast_hash": "eafe6f757cace56ec2833fad49914d81",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\common\\dates.spec.ts": {
-    "mtime": 1786032488.262795,
+    "mtime": 1786112155.7988696,
     "ast_hash": "75dfe0fe230dc250bbeae37e433e077b",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\common\\dates.ts": {
-    "mtime": 1786033702.2534406,
+    "mtime": 1786112155.734352,
     "ast_hash": "7ae88aa7834186d12038ee1ac9577ab1",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\common\\error-codes.ts": {
-    "mtime": 1786030256.1622713,
-    "ast_hash": "8002e02f5f6fd03957d772d944f45d7a",
+    "mtime": 1786461796.2259305,
+    "ast_hash": "7760765d33f570c74ff7ff8fa69bfb70",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\health\\health.controller.ts": {
-    "mtime": 1786030265.5442567,
+    "mtime": 1786112155.7908688,
     "ast_hash": "a0151a1644909fa8487de61ba93f8214",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\health\\health.module.ts": {
-    "mtime": 1786030266.655355,
+    "mtime": 1786112155.7998698,
     "ast_hash": "717d72f31291ba916bf633e479c7a629",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\inbox.service.ts": {
-    "mtime": 1786033854.372801,
+    "mtime": 1786112155.7433517,
     "ast_hash": "5dce18ff4ed046ae51848653523bbd91",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\mailer.service.ts": {
-    "mtime": 1786031904.0940304,
-    "ast_hash": "3ac25e707a8c2ebac55fe21d14cd8a66",
+    "mtime": 1786112155.736351,
+    "ast_hash": "1928706d44b7723fa6c2a288cff2964a",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\notification.types.ts": {
-    "mtime": 1786033681.3077052,
+    "mtime": 1786112155.7998698,
     "ast_hash": "ed39015d41c507f1659f869eaae7a678",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\notifications.controller.ts": {
-    "mtime": 1786033777.8151157,
+    "mtime": 1786112155.7998698,
     "ast_hash": "888f7d12930975f34e85d1c65e9e84be",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\notifications.module.ts": {
-    "mtime": 1786033782.4128308,
+    "mtime": 1786112155.7818701,
     "ast_hash": "8831b20a1e8cdb729b5810f32ac15daf",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\notifications.service.spec.ts": {
-    "mtime": 1786033942.7021866,
+    "mtime": 1786112155.7393522,
     "ast_hash": "9c5af1097b42069b6756489c0b151d8e",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\notifications.service.ts": {
-    "mtime": 1786033746.8345263,
+    "mtime": 1786112155.7433517,
     "ast_hash": "6043a8e60cb344008e0bde00d6795613",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\push.controller.ts": {
-    "mtime": 1786033774.023594,
+    "mtime": 1786112155.729343,
     "ast_hash": "e72a172223bb000182ffddd8e0e00563",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\push.service.ts": {
-    "mtime": 1786033718.9992723,
+    "mtime": 1786112155.7988696,
     "ast_hash": "630b529b04db5b930b28de1f5497a46a",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\templates.spec.ts": {
-    "mtime": 1786033955.5484023,
+    "mtime": 1786112155.7998698,
     "ast_hash": "650646e319655d1e3fb3defeb5fb49b6",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\templates.ts": {
-    "mtime": 1786033695.9476504,
+    "mtime": 1786112155.7908688,
     "ast_hash": "17b1065bf5b32c442a6f32c98fb3bb1b",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\dto\\list-notifications.dto.ts": {
-    "mtime": 1786033764.813902,
+    "mtime": 1786112155.751352,
     "ast_hash": "71ea7e20a7f9e9b583614d2c4e1ae3e2",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\notifications\\dto\\push-subscribe.dto.ts": {
-    "mtime": 1786033761.7695026,
+    "mtime": 1786112155.744352,
     "ast_hash": "f65751221e2a9a05ff6d5d65ff9d76a6",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\prisma\\prisma.module.ts": {
-    "mtime": 1786030246.4410195,
+    "mtime": 1786112155.7998698,
     "ast_hash": "0d14fad4b4742f49ea6d9d9c48069e8b",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\prisma\\prisma.service.ts": {
-    "mtime": 1786030246.2159748,
+    "mtime": 1786112155.7643528,
     "ast_hash": "b927225fdf284e7b8337fa5b66dca982",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\reservations\\reservation.types.ts": {
-    "mtime": 1786033818.5952353,
+    "mtime": 1786112155.7998698,
     "ast_hash": "550a659ad89024c9918e33bec5f7526c",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\reservations\\reservations.controller.ts": {
-    "mtime": 1786032950.0318966,
+    "mtime": 1786112155.7908688,
     "ast_hash": "97a3d16c34d4f57821eec4b56d56a0e9",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\reservations\\reservations.module.ts": {
-    "mtime": 1786032472.6889508,
+    "mtime": 1786112155.7393522,
     "ast_hash": "6edc5cef134bb61f1df0343de9427f20",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\reservations\\reservations.service.spec.ts": {
-    "mtime": 1786033922.9528894,
-    "ast_hash": "b883f7a8b4e4323c8f051d9c260db252",
+    "mtime": 1786461852.7494738,
+    "ast_hash": "ca99390f0ddd1e7b0099c4c2ed1d37f3",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\reservations\\reservations.service.ts": {
-    "mtime": 1786033823.038718,
-    "ast_hash": "370581e6de75472cce7f70c1dbf2fe60",
+    "mtime": 1786461824.7734425,
+    "ast_hash": "4c329c09dcfeb2826b744741f9cc0d61",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\reservations\\dto\\create-reservation.dto.ts": {
-    "mtime": 1786032889.3696742,
+    "mtime": 1786112155.7643528,
     "ast_hash": "5d869aabc5bad87fb920002f1f4e134d",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\reservations\\dto\\list-reservations.dto.ts": {
-    "mtime": 1786032454.5996103,
+    "mtime": 1786112155.7988696,
     "ast_hash": "94ac66cf11b59a4ed361893e8e30a18c",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\rooms\\rooms.controller.ts": {
-    "mtime": 1786032444.675715,
+    "mtime": 1786112155.731353,
     "ast_hash": "4bf7c01e17587f89579a6bb9ffb14b6c",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\rooms\\rooms.module.ts": {
-    "mtime": 1786032446.8029742,
+    "mtime": 1786112155.7988696,
     "ast_hash": "e9c6f895df3fac74213bad1c067d6409",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\rooms\\rooms.service.ts": {
-    "mtime": 1786032442.5488853,
+    "mtime": 1786112155.746353,
     "ast_hash": "4ff804f9f03e4e25782e9805242fa59b",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\users\\admin-users.controller.ts": {
-    "mtime": 1786031972.7373972,
+    "mtime": 1786112155.7988696,
     "ast_hash": "b5eebd3585c84ff299c7a56fe0e3bbab",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\users\\user.types.ts": {
-    "mtime": 1786031979.3846674,
-    "ast_hash": "57c70a8ecef60599317e261dd6960732",
+    "mtime": 1786112155.7998698,
+    "ast_hash": "d55d9a7028fe77468333af00856afccf",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\users\\users.module.ts": {
-    "mtime": 1786031973.4550104,
-    "ast_hash": "7c71f8df9761909c032608680ca29dcd",
+    "mtime": 1786112155.7988696,
+    "ast_hash": "dd34da19460858890358fc03adba13d2",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\users\\users.service.spec.ts": {
-    "mtime": 1786032021.572846,
+    "mtime": 1786112155.7988696,
     "ast_hash": "9c69e084b203a2222f7f13ae0613f884",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\users\\users.service.ts": {
-    "mtime": 1786033792.3102946,
-    "ast_hash": "59239a2e8922afb55c9d2629f6705c19",
+    "mtime": 1786112155.7573545,
+    "ast_hash": "c7801d03b11233fc128c2895909de096",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\users\\dto\\assign-role.dto.ts": {
-    "mtime": 1786031946.7783537,
+    "mtime": 1786112155.751352,
     "ast_hash": "2a332515da71a3fbbee5dbae1ae78aa4",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\api\\src\\users\\dto\\list-users.dto.ts": {
-    "mtime": 1786031945.4026337,
+    "mtime": 1786112155.7998698,
     "ast_hash": "68575bf8b6697797cfc4138a06be77d7",
     "semantic_hash": ""
   },
@@ -315,17 +315,17 @@
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\package.json": {
-    "mtime": 1786047282.0743623,
+    "mtime": 1786461092.0026746,
     "ast_hash": "f8ca20695aa74a525412c741c67efed3",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\tsconfig.json": {
-    "mtime": 1786044657.7129872,
+    "mtime": 1786112155.7988696,
     "ast_hash": "e84e5c7fe88e3c5a4d54f55a816d42c1",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\vite.config.ts": {
-    "mtime": 1786047281.295326,
+    "mtime": 1786461092.0026746,
     "ast_hash": "d695aee6d4d40a3826a1c1920964858e",
     "semantic_hash": ""
   },
@@ -910,8 +910,8 @@
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\src\\lib\\auth.tsx": {
-    "mtime": 1786044657.2371297,
-    "ast_hash": "479576e09b0630b68e4e9854abfec3ab",
+    "mtime": 1786113824.0065236,
+    "ast_hash": "a3aea70217d69f692ab83cb9f7c7ae09",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\src\\lib\\bogota.ts": {
@@ -945,22 +945,22 @@
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\src\\lib\\api\\endpoints.ts": {
-    "mtime": 1786044657.4854903,
-    "ast_hash": "6e2e39120f8b72156daad678299e49ac",
+    "mtime": 1786112155.7908688,
+    "ast_hash": "e3daedac18d6f585a9bd4dbc8cf074fd",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\src\\lib\\api\\types.ts": {
-    "mtime": 1786044657.5116222,
-    "ast_hash": "e016ad6ef0be3a1693acc07a9877d3d2",
+    "mtime": 1786461826.558237,
+    "ast_hash": "8a05dc5ebc849bf9f4bfe66d4e6df995",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\src\\routes\\index.tsx": {
-    "mtime": 1786045056.580433,
-    "ast_hash": "84ff2a4c03e3fa924269c996777dc40b",
+    "mtime": 1786461067.9198976,
+    "ast_hash": "ba6caf143653ad33fdd9c205e4496488",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\src\\routes\\pendiente.tsx": {
-    "mtime": 1786045056.5154538,
+    "mtime": 1786112155.7998698,
     "ast_hash": "18a27af68654d0748c1b13f1bc2753fc",
     "semantic_hash": ""
   },
@@ -970,7 +970,7 @@
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\src\\routes\\__root.tsx": {
-    "mtime": 1786047277.6777408,
+    "mtime": 1786112155.734352,
     "ast_hash": "fbb8c64563822b1ee59b72629b917be6",
     "semantic_hash": ""
   },
@@ -990,52 +990,52 @@
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\src\\routes\\_authenticated\\reservas.nueva.tsx": {
-    "mtime": 1786044657.6788862,
-    "ast_hash": "de41a6bc942930a9d5065f6f9b3686fa",
+    "mtime": 1786461826.811429,
+    "ast_hash": "4813b62bc7d6b37e23800956752ce843",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\src\\routes\\_authenticated\\route.tsx": {
-    "mtime": 1786044657.6973295,
-    "ast_hash": "a222041042ac0a7b51c545f8274b1cc3",
+    "mtime": 1786113824.008533,
+    "ast_hash": "b700cc53939dc9d59c04efa06ff34807",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\scripts\\smoke-admin.ps1": {
-    "mtime": 1786032181.8261032,
+    "mtime": 1786112155.7988696,
     "ast_hash": "0011858dc57bd384ab8e1c89bb4b675f",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\scripts\\smoke-auth.ps1": {
-    "mtime": 1786031563.4156656,
+    "mtime": 1786112155.7333527,
     "ast_hash": "7a5ccf451f9cceca0f657c5563888e68",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\scripts\\smoke-calendar.ps1": {
-    "mtime": 1786032681.2378595,
+    "mtime": 1786112155.7633536,
     "ast_hash": "9ae8b5e583e49143868d68dc0ab7f760",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\scripts\\smoke-notifications.ps1": {
-    "mtime": 1786034270.280033,
+    "mtime": 1786112155.7323515,
     "ast_hash": "7ca01469ff5de135fc60c62f58da3ea2",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\scripts\\smoke-reservations.ps1": {
-    "mtime": 1786033308.924013,
+    "mtime": 1786112155.7908688,
     "ast_hash": "334c8b9faf2ef3e45ef5118e142c233d",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\docker-compose.yml": {
-    "mtime": 1786030601.2890415,
+    "mtime": 1786112155.729343,
     "ast_hash": "b701030feb65ef74a03dfd0aab72f3e9",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\README.md": {
-    "mtime": 1786047371.4525316,
+    "mtime": 1786112155.7643528,
     "ast_hash": "cd77f3555ea543eee3cddf69a6178d92",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\apps\\web\\README.md": {
-    "mtime": 1786047338.886613,
+    "mtime": 1786112155.7908688,
     "ast_hash": "03c5b96c3443e73bb4b7b4da771a10ca",
     "semantic_hash": ""
   },
@@ -1055,112 +1055,112 @@
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\docs\\01-vision-alcance.md": {
-    "mtime": 1786030230.9634798,
+    "mtime": 1786112155.7988696,
     "ast_hash": "7ee9e833e599506c7a814eecd7d137d7",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\docs\\02-journey-maps.md": {
-    "mtime": 1786030230.9634798,
+    "mtime": 1786112155.7908688,
     "ast_hash": "d8738f88c4203f8d37e15c048d46d7cc",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\docs\\03-modelo-datos.md": {
-    "mtime": 1786030758.0211785,
+    "mtime": 1786112155.7908688,
     "ast_hash": "314060c13e4ab69d68254d91fea0ed31",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\docs\\04-arquitectura.md": {
-    "mtime": 1786030230.9493518,
+    "mtime": 1786112155.7303522,
     "ast_hash": "1020aecc08c44fa62060da177e5e38ee",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\docs\\05-permisos-flujos.md": {
-    "mtime": 1786030230.9634798,
+    "mtime": 1786112155.7998698,
     "ast_hash": "2d4fb1e12f8d38c277123119743b8309",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\docs\\06-notificaciones-pwa.md": {
-    "mtime": 1786034509.5598283,
+    "mtime": 1786112155.7323515,
     "ast_hash": "33bdd96970779e5f3c4d811b6b1dca38",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\docs\\07-roadmap.md": {
-    "mtime": 1786047390.5648184,
+    "mtime": 1786112155.7393522,
     "ast_hash": "7f845490a802419d008a53ff11295231",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\api-contract.md": {
-    "mtime": 1786047389.838092,
-    "ast_hash": "0e793fc0dfa7519bbe8abb319d507b52",
+    "mtime": 1786461840.5656104,
+    "ast_hash": "90498926e5c7fcf1b5a6ddcd66ac4b20",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\constitution.md": {
-    "mtime": 1786047381.4153438,
+    "mtime": 1786112155.7393522,
     "ast_hash": "0a4394ee0305d7928b370ba5e9a6d936",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\local-development.md": {
-    "mtime": 1786047372.339812,
+    "mtime": 1786112155.7908688,
     "ast_hash": "b93a6dd0fe48c97c77605edd6f6698aa",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\product-spec.md": {
-    "mtime": 1786047383.3076637,
+    "mtime": 1786112155.7988696,
     "ast_hash": "2de099e09ee291183f6cea3a3a8e647c",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\railway.md": {
-    "mtime": 1786047390.8988369,
+    "mtime": 1786112155.7238355,
     "ast_hash": "3cbe152b9f88d24b45212667f28ead7b",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\README.md": {
-    "mtime": 1786047385.092141,
+    "mtime": 1786112155.7258356,
     "ast_hash": "3528fd7e74b4ed29e12310491acec220",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\technical-spec.md": {
-    "mtime": 1786047387.864668,
+    "mtime": 1786112155.7998698,
     "ast_hash": "e68b997bd2d75e074dd3533f42b3c5c0",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\features\\001-auth-registration.md": {
-    "mtime": 1786031703.0820484,
+    "mtime": 1786112155.7288365,
     "ast_hash": "7da68fe4b34a8ef1a6487ce77e9b9690",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\features\\002-admin-users.md": {
-    "mtime": 1786032243.8352654,
+    "mtime": 1786112155.7988696,
     "ast_hash": "fca1166d666c0ee3458c40b7492a61c6",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\features\\003-rooms-calendar.md": {
-    "mtime": 1786032721.2766452,
+    "mtime": 1786112155.7808683,
     "ast_hash": "16b30a2221943739edb10b716368f8f5",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\features\\004-reservations.md": {
-    "mtime": 1786033370.6711242,
-    "ast_hash": "bd937f3ac8e802c146f96f4d2106e870",
+    "mtime": 1786461852.5785646,
+    "ast_hash": "eb7bac1b2607d46cd066eeefc367949c",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\features\\005-overrides-gerencia.md": {
-    "mtime": 1786033383.9093008,
+    "mtime": 1786112155.729343,
     "ast_hash": "09a2fec29d369ebbec29cdab2a7b0e29",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\features\\006-invites-notifications.md": {
-    "mtime": 1786034434.5895278,
+    "mtime": 1786112155.7778716,
     "ast_hash": "6ac41b0ddd0b71250684cfc1c58b64f0",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\features\\007-pwa-shell-placeholder.md": {
-    "mtime": 1786047375.2825313,
+    "mtime": 1786112155.7988696,
     "ast_hash": "c97011883f555ca5cafda0a441d5417f",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\tasks\\backlog.md": {
-    "mtime": 1786047372.841296,
+    "mtime": 1786112155.7503533,
     "ast_hash": "2a473a79e2c4d117ab78338df7cddbc0",
     "semantic_hash": ""
   },
@@ -1205,13 +1205,33 @@
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\frontend-brief.md": {
-    "mtime": 1786047352.873658,
-    "ast_hash": "4685913837de8345f95bdbaadaff6a14",
+    "mtime": 1786461858.4183238,
+    "ast_hash": "c50676476e433da5284b50a21348809f",
     "semantic_hash": ""
   },
   "C:\\NexusCalendar\\specs\\frontend-gap-analysis.md": {
-    "mtime": 1786047357.7793708,
+    "mtime": 1786112155.7998698,
     "ast_hash": "4504311213c2c11016a0de914e07d511",
+    "semantic_hash": ""
+  },
+  "C:\\NexusCalendar\\apps\\api\\scripts\\send-test-mail.ts": {
+    "mtime": 1786112155.7988696,
+    "ast_hash": "8d8111858924d1873c4de828abc0edab",
+    "semantic_hash": ""
+  },
+  "C:\\NexusCalendar\\apps\\api\\src\\users\\users-directory.controller.ts": {
+    "mtime": 1786112155.7908688,
+    "ast_hash": "cb925320629e1ba1ddcfc7a206241d38",
+    "semantic_hash": ""
+  },
+  "C:\\NexusCalendar\\apps\\api\\src\\users\\dto\\directory-users.dto.ts": {
+    "mtime": 1786112155.751352,
+    "ast_hash": "a1fa9e376de7c5ca534935aa9ea4dafe",
+    "semantic_hash": ""
+  },
+  "C:\\NexusCalendar\\apps\\web\\src\\components\\nexus\\invitees-field.tsx": {
+    "mtime": 1786112155.7988696,
+    "ast_hash": "137fb418d27c511c96b837976f26357d",
     "semantic_hash": ""
   }
 }

@@ -6,24 +6,44 @@ export const API_URL: string =
 const ACCESS_KEY = "nexus.accessToken";
 const REFRESH_KEY = "nexus.refreshToken";
 
+/** Sesion de pestaña: se borra al cerrar la pestana/navegador (no sobrevive al apagar el PC). */
+function tokenStore(): Storage | null {
+  if (typeof window === "undefined") return null;
+  return window.sessionStorage;
+}
+
+function clearLegacyLocalTokens(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(ACCESS_KEY);
+  window.localStorage.removeItem(REFRESH_KEY);
+}
+
 export const tokens = {
   get access(): string | null {
-    if (typeof window === "undefined") return null;
-    return window.localStorage.getItem(ACCESS_KEY);
+    const store = tokenStore();
+    if (!store) return null;
+    // Migra fuera de localStorage para que sesiones viejas no reabran solas.
+    clearLegacyLocalTokens();
+    return store.getItem(ACCESS_KEY);
   },
   get refresh(): string | null {
-    if (typeof window === "undefined") return null;
-    return window.localStorage.getItem(REFRESH_KEY);
+    const store = tokenStore();
+    if (!store) return null;
+    return store.getItem(REFRESH_KEY);
   },
   set(access: string, refresh: string) {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(ACCESS_KEY, access);
-    window.localStorage.setItem(REFRESH_KEY, refresh);
+    const store = tokenStore();
+    if (!store) return;
+    clearLegacyLocalTokens();
+    store.setItem(ACCESS_KEY, access);
+    store.setItem(REFRESH_KEY, refresh);
   },
   clear() {
-    if (typeof window === "undefined") return;
-    window.localStorage.removeItem(ACCESS_KEY);
-    window.localStorage.removeItem(REFRESH_KEY);
+    const store = tokenStore();
+    if (!store) return;
+    store.removeItem(ACCESS_KEY);
+    store.removeItem(REFRESH_KEY);
+    clearLegacyLocalTokens();
   },
 };
 

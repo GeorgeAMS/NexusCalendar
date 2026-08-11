@@ -290,23 +290,25 @@ describe('ReservationsService', () => {
       });
     });
 
-    it('detecta solapes globales con intervalo semiabierto', async () => {
+    it('detecta solapes de sala con intervalo semiabierto', async () => {
       await service.create(organizer, validDraft);
 
       expect(prisma.reservation.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: {
-            meetingDate: parseDateOnly(BOOKABLE_DATE),
+          where: expect.objectContaining({
+            roomId: validDraft.roomId,
             status: ReservationStatus.confirmed,
             startTime: { lt: '10:00' },
             endTime: { gt: '09:00' },
-          },
+          }),
         }),
       );
     });
 
     it('devuelve ROOM_CONFLICT con el detalle del choque', async () => {
-      prisma.reservation.findMany.mockResolvedValue([buildReservation()]);
+      prisma.reservation.findMany.mockImplementation((args: { where: { roomId?: string } }) =>
+        Promise.resolve(args.where.roomId ? [buildReservation()] : []),
+      );
 
       expect.assertions(5);
       await service.create(organizer, validDraft).catch((error: unknown) => {
@@ -320,7 +322,9 @@ describe('ReservationsService', () => {
     });
 
     it('marca canOverride cuando quien choca es gerencia', async () => {
-      prisma.reservation.findMany.mockResolvedValue([buildReservation()]);
+      prisma.reservation.findMany.mockImplementation((args: { where: { roomId?: string } }) =>
+        Promise.resolve(args.where.roomId ? [buildReservation()] : []),
+      );
 
       expect.assertions(4);
       await service.create(manager, validDraft).catch((error: unknown) => {
@@ -332,7 +336,14 @@ describe('ReservationsService', () => {
       });
     });
 
-    it('bloquea otra reunion a la misma hora aunque sea otra sala', async () => {
+    it('permite otra reunion a la misma hora en otra sala si no hay personas en comun', async () => {
+      prisma.reservation.findMany.mockResolvedValue([]);
+
+      await expect(service.create(organizer, validDraft)).resolves.toBeDefined();
+      expect(tx.reservation.create).toHaveBeenCalled();
+    });
+
+    it('bloquea si el organizador ya tiene otra reunion a la misma hora en otra sala', async () => {
       const otherRoom = buildReservation({
         id: 'reservation-other',
         roomId: 'room-2',
@@ -345,16 +356,92 @@ describe('ReservationsService', () => {
         startTime: '09:00',
         endTime: '10:00',
       });
-      prisma.reservation.findMany.mockResolvedValue([otherRoom]);
 
-      expect.assertions(4);
+      prisma.reservation.findMany.mockImplementation((args: { where: { roomId?: string } }) =>
+        Promise.resolve(args.where.roomId ? [] : [otherRoom]),
+      );
+
+      expect.assertions(5);
       await service.create(organizer, validDraft).catch((error: unknown) => {
-        expectAppError(error, 'ROOM_CONFLICT', 409);
+        expectAppError(error, 'PARTICIPANT_CONFLICT', 409);
         const details = (error as HttpException).getResponse() as {
-          details: { conflicts: { roomName: string }[] };
+          details: {
+            conflicts: {
+              roomName: string;
+              people: { email: string }[];
+            }[];
+          };
         };
         expect(details.details.conflicts[0].roomName).toBe('Sala B');
+        expect(details.details.conflicts[0].people[0].email).toBe('ana@clinica.example');
       });
+    });
+
+    it('bloquea si un invitado ya esta en otra reunion al mismo horario', async () => {
+      const busyInvitee = buildReservation({
+        id: 'reservation-invitee',
+        organizerId: 'user-9',
+        organizer: {
+          ...buildReservation().organizer,
+          id: 'user-9',
+          fullName: 'Otro',
+          email: 'otro@clinica.example',
+        },
+        invitees: [
+          {
+            id: 'invitee-busy',
+            reservationId: 'reservation-invitee',
+            email: 'invitado@clinica.example',
+            userId: null,
+            inviteStatus: InviteStatus.accepted,
+            createdAt: new Date('2026-08-06T12:00:00Z'),
+          },
+        ],
+        startTime: '09:30',
+        endTime: '10:30',
+      });
+
+      prisma.reservation.findMany.mockImplementation((args: { where: { roomId?: string } }) =>
+        Promise.resolve(args.where.roomId ? [] : [busyInvitee]),
+      );
+
+      expect.assertions(4);
+      await service
+        .create(organizer, { ...validDraft, inviteeEmails: ['invitado@clinica.example'] })
+        .catch((error: unknown) => {
+          expectAppError(error, 'PARTICIPANT_CONFLICT', 409);
+          const details = (error as HttpException).getResponse() as {
+            details: { conflicts: { people: { email: string }[] }[] };
+          };
+          expect(
+            details.details.conflicts[0].people.some((p) => p.email === 'invitado@clinica.example'),
+          ).toBe(true);
+        });
+    });
+
+    it('force de gerencia no salta el choque de personas', async () => {
+      const otherRoom = buildReservation({
+        id: 'reservation-other',
+        roomId: 'room-2',
+        organizerId: manager.id,
+        organizer: {
+          ...buildReservation().organizer,
+          id: manager.id,
+          fullName: manager.fullName,
+          email: manager.email,
+        },
+        startTime: '09:00',
+        endTime: '10:00',
+      });
+
+      prisma.reservation.findMany.mockImplementation((args: { where: { roomId?: string } }) =>
+        Promise.resolve(args.where.roomId ? [] : [otherRoom]),
+      );
+
+      expect.assertions(3);
+      await service
+        .create(manager, { ...validDraft, force: true })
+        .catch((error: unknown) => expectAppError(error, 'PARTICIPANT_CONFLICT', 409));
     });
 
     it('un usuario general no puede forzar', async () => {
@@ -367,7 +454,9 @@ describe('ReservationsService', () => {
 
     it('gerencia con force sobreescribe, audita y avisa a los desplazados', async () => {
       const displaced = buildReservation();
-      prisma.reservation.findMany.mockResolvedValue([displaced]);
+      prisma.reservation.findMany.mockImplementation((args: { where: { roomId?: string } }) =>
+        Promise.resolve(args.where.roomId ? [displaced] : []),
+      );
 
       await service.create(manager, { ...validDraft, force: true });
 

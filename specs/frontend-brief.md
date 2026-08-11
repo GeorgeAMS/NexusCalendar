@@ -93,6 +93,7 @@ Base: `{VITE_API_URL}` = `http://localhost:3000/api/v1` (local).
 | `ACCOUNT_REJECTED` / `ACCOUNT_DISABLED` | Mensaje claro, no entrar |
 | `EMAIL_TAKEN` | Correo ya registrado |
 | `ROOM_CONFLICT` | Mostrar conflictos; si `canOverride`, botón de gerencia |
+| `PARTICIPANT_CONFLICT` | Mostrar error de personas ocupadas (sin override) |
 | `ADVANCE_NOTICE` | Pedir fecha ≥ mañana (`details.earliestDate`) |
 | `VALIDATION_ERROR` | Campos inválidos |
 | `FORBIDDEN` | Sin permiso |

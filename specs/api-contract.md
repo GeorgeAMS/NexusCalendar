@@ -32,7 +32,8 @@ Convenciones:
 | `ACCOUNT_REJECTED` | 403 | Cuenta rechazada |
 | `ACCOUNT_DISABLED` | 403 | Cuenta desactivada |
 | `EMAIL_TAKEN` | 409 | Registro duplicado |
-| `ROOM_CONFLICT` | 409 | Ya hay una reunión en ese horario (cualquier sala), sin force |
+| `ROOM_CONFLICT` | 409 | Misma sala ocupada en ese horario, sin force |
+| `PARTICIPANT_CONFLICT` | 409 | Organizador o invitado ya ocupado en ese horario (cualquier sala) |
 | `ADVANCE_NOTICE` | 422 | Sin 1 día de anticipación |
 | `NOT_FOUND` | 404 | Recurso inexistente |
 
@@ -291,13 +292,39 @@ Reglas implementadas:
 - Sala inexistente o inactiva → 404 `NOT_FOUND`.
 - `inviteeEmails`: máximo 50, se normalizan a minúscula y se deduplican; si el correo pertenece a
   un usuario activo queda enlazado a su cuenta.
-- **Una sola reunión por franja horaria** en toda la clínica: solape contra cualquier
-  `confirmed` del mismo día (cualquier sala), intervalo **semiabierto**
+- Solape de **sala**: solo contra `confirmed` de la misma sala y fecha, intervalo **semiabierto**
   (09:00–10:00 es válido justo después de 08:00–09:00).
-- Solape + `force=false` → 409 `ROOM_CONFLICT`.
+- Solape de **personas**: el organizador o cualquier invitado no puede figurar (como organizador o
+  invitado) en otra `confirmed` solapada el mismo día, **aunque sea otra sala** → 409
+  `PARTICIPANT_CONFLICT`. `force` no lo omite. Varias reuniones a la misma hora en salas distintas
+  sí se permiten si no comparten personas.
+- Solape de sala + `force=false` → 409 `ROOM_CONFLICT`.
 - `force=true` solo `gerencia`; cualquier otro rol → 403 `FORBIDDEN`.
 - `force=true` en gerencia: la nueva queda `confirmed`, las desplazadas pasan a `overridden` con
   `overriddenByReservationId` apuntando a la nueva, y sus organizadores e invitados reciben correo.
+
+**409** `PARTICIPANT_CONFLICT`
+
+```json
+{
+  "statusCode": 409,
+  "code": "PARTICIPANT_CONFLICT",
+  "message": "Hay personas ya ocupadas en ese horario (Ana Pérez): \"Comité\" 09:00–10:00 en Sala B.",
+  "details": {
+    "conflicts": [
+      {
+        "id": "uuid",
+        "title": "Comité",
+        "startTime": "09:00",
+        "endTime": "10:00",
+        "roomName": "Sala B",
+        "organizerName": "Ana Pérez",
+        "people": [{ "email": "ana@clinica.example", "fullName": "Ana Pérez" }]
+      }
+    ]
+  }
+}
+```
 
 **409** `ROOM_CONFLICT`
 
@@ -305,7 +332,7 @@ Reglas implementadas:
 {
   "statusCode": 409,
   "code": "ROOM_CONFLICT",
-  "message": "Ya hay una reunion de 08:00 a 09:00 (Sala A) a cargo de Ana Pérez. No puede haber otra a la misma hora.",
+  "message": "La sala ya esta reservada de 08:00 a 09:00 por Ana Pérez.",
   "details": {
     "conflicts": [
       {

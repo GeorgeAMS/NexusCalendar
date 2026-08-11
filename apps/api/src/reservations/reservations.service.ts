@@ -90,7 +90,7 @@ export class ReservationsService {
     if (dto.force && actor.role !== UserRole.gerencia) {
       throw new AppError(
         ErrorCode.FORBIDDEN,
-        'Solo gerencia puede sobreescribir un horario ocupado.',
+        'Solo gerencia puede sobreescribir una sala ocupada.',
         HttpStatus.FORBIDDEN,
       );
     }
@@ -101,15 +101,60 @@ export class ReservationsService {
     }
 
     const meetingDate = parseDateOnly(dto.meetingDate);
-    // Regla de negocio: a la misma hora solo puede haber una reunion confirmed
-    // en toda la clinica (cualquier sala). Intervalo semiabierto.
-    const conflicts = await this.findTimeConflicts(meetingDate, dto.startTime, dto.endTime);
+    const inviteeEmails = this.normalizeInvitees(dto.inviteeEmails);
+    const knownUsers = await this.resolveInviteeUsers(inviteeEmails);
+
+    // Organizador + invitados: nadie puede estar en dos reuniones a la misma hora
+    // aunque sea otra sala. force de gerencia no salta este choque.
+    const participantEmails = [...new Set([normalizeEmail(actor.email), ...inviteeEmails])];
+    const participantUserIds = [...new Set([actor.id, ...knownUsers.values()])];
+
+    const participantConflicts = await this.findParticipantConflicts(
+      meetingDate,
+      dto.startTime,
+      dto.endTime,
+      participantEmails,
+      participantUserIds,
+    );
+
+    if (participantConflicts.length > 0) {
+      const first = participantConflicts[0];
+      const people = this.conflictingParticipants(first, participantEmails, participantUserIds);
+      const who = people.map((person) => person.fullName ?? person.email).join(', ');
+
+      throw new AppError(
+        ErrorCode.PARTICIPANT_CONFLICT,
+        `Hay personas ya ocupadas en ese horario${who ? ` (${who})` : ''}: "${first.title}" ${first.startTime}–${first.endTime} en ${first.room.name}.`,
+        HttpStatus.CONFLICT,
+        {
+          conflicts: participantConflicts.map((conflict) => ({
+            id: conflict.id,
+            title: conflict.title,
+            startTime: conflict.startTime,
+            endTime: conflict.endTime,
+            roomName: conflict.room.name,
+            organizerName: conflict.organizer.fullName,
+            people: this.conflictingParticipants(
+              conflict,
+              participantEmails,
+              participantUserIds,
+            ),
+          })),
+        },
+      );
+    }
+
+    const conflicts = await this.findRoomConflicts(
+      dto.roomId,
+      meetingDate,
+      dto.startTime,
+      dto.endTime,
+    );
 
     if (conflicts.length > 0 && !dto.force) {
-      const first = conflicts[0];
       throw new AppError(
         ErrorCode.ROOM_CONFLICT,
-        `Ya hay una reunion de ${first.startTime} a ${first.endTime} (${first.room.name}) a cargo de ${first.organizer.fullName}. No puede haber otra a la misma hora.`,
+        `La sala ya esta reservada de ${conflicts[0].startTime} a ${conflicts[0].endTime} por ${conflicts[0].organizer.fullName}.`,
         HttpStatus.CONFLICT,
         {
           conflicts: conflicts.map((conflict) => ({
@@ -124,9 +169,6 @@ export class ReservationsService {
         },
       );
     }
-
-    const inviteeEmails = this.normalizeInvitees(dto.inviteeEmails);
-    const knownUsers = await this.resolveInviteeUsers(inviteeEmails);
 
     const created = await this.prisma.$transaction(async (tx) => {
       const reservation = await tx.reservation.create({
@@ -253,25 +295,105 @@ export class ReservationsService {
     });
   }
 
-  /**
-   * Solo una reunion confirmed por franja horaria en toda la clinica.
-   * Intervalo semiabierto: una puede empezar justo cuando termina otra.
-   */
-  private findTimeConflicts(
+  /** Intervalo semiabierto: una reunion puede empezar justo cuando termina otra. */
+  private findRoomConflicts(
+    roomId: string,
     meetingDate: Date,
     startTime: string,
     endTime: string,
   ): Promise<ReservationWithRelations[]> {
     return this.prisma.reservation.findMany({
       where: {
+        roomId,
         meetingDate,
         status: ReservationStatus.confirmed,
         startTime: { lt: endTime },
         endTime: { gt: startTime },
       },
       include: reservationInclude,
+      orderBy: { startTime: 'asc' },
+    });
+  }
+
+  /**
+   * Choques de agenda personal: el organizador o cualquier invitado ya figura
+   * (como organizador o invitado) en otra reserva confirmed solapada, cualquier sala.
+   */
+  private findParticipantConflicts(
+    meetingDate: Date,
+    startTime: string,
+    endTime: string,
+    participantEmails: string[],
+    participantUserIds: string[],
+  ): Promise<ReservationWithRelations[]> {
+    const inviteeMatch: Prisma.ReservationInviteeWhereInput[] = [];
+    if (participantEmails.length > 0) {
+      inviteeMatch.push({ email: { in: participantEmails } });
+    }
+    if (participantUserIds.length > 0) {
+      inviteeMatch.push({ userId: { in: participantUserIds } });
+    }
+
+    const or: Prisma.ReservationWhereInput[] = [];
+    if (participantUserIds.length > 0) {
+      or.push({ organizerId: { in: participantUserIds } });
+    }
+    if (participantEmails.length > 0) {
+      or.push({ organizer: { email: { in: participantEmails } } });
+    }
+    if (inviteeMatch.length > 0) {
+      or.push({ invitees: { some: { OR: inviteeMatch } } });
+    }
+
+    if (or.length === 0) {
+      return Promise.resolve([]);
+    }
+
+    return this.prisma.reservation.findMany({
+      where: {
+        meetingDate,
+        status: ReservationStatus.confirmed,
+        startTime: { lt: endTime },
+        endTime: { gt: startTime },
+        OR: or,
+      },
+      include: reservationInclude,
       orderBy: [{ startTime: 'asc' }, { room: { name: 'asc' } }],
     });
+  }
+
+  private conflictingParticipants(
+    reservation: ReservationWithRelations,
+    participantEmails: string[],
+    participantUserIds: string[],
+  ): { email: string; fullName: string | null }[] {
+    const emailSet = new Set(participantEmails);
+    const userIdSet = new Set(participantUserIds);
+    const people: { email: string; fullName: string | null }[] = [];
+    const seen = new Set<string>();
+
+    const push = (email: string, fullName: string | null) => {
+      const key = normalizeEmail(email);
+      if (seen.has(key)) return;
+      seen.add(key);
+      people.push({ email: key, fullName });
+    };
+
+    if (
+      userIdSet.has(reservation.organizerId) ||
+      emailSet.has(normalizeEmail(reservation.organizer.email))
+    ) {
+      push(reservation.organizer.email, reservation.organizer.fullName);
+    }
+
+    for (const invitee of reservation.invitees) {
+      const email = normalizeEmail(invitee.email);
+      if (emailSet.has(email) || (invitee.userId && userIdSet.has(invitee.userId))) {
+        push(email, null);
+      }
+    }
+
+    return people;
   }
 
   private assertValidInterval(startTime: string, endTime: string): void {

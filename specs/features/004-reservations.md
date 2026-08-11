@@ -14,16 +14,18 @@ Crear reservas con validación de anticipación y solapes; cancelar según permi
 1. Campos: roomId, title, description?, meetingDate, startTime, endTime, inviteeEmails[].
 2. `endTime > startTime`.
 3. `meetingDate >= tomorrow` en `America/Bogota` → si no, `ADVANCE_NOTICE`.
-4. Solo una `confirmed` por franja horaria en toda la clínica (cualquier sala) →
-   `ROOM_CONFLICT` si `force` false.
-5. Organizador = usuario autenticado.
-6. Invitados: emails normalizados, dedupe, link a user si existe.
-7. Cancel: organizador (propia) o gerencia (cualquiera) → `cancelled`.
+4. Solape con otra `confirmed` misma sala → `ROOM_CONFLICT` si `force` false.
+5. Solape de personas (organizador o invitados) en otra `confirmed` a la misma hora,
+   cualquier sala → `PARTICIPANT_CONFLICT` (`force` no lo omite). Varias reuniones en paralelo
+   en salas distintas sí, si no comparten personas.
+6. Organizador = usuario autenticado.
+7. Invitados: emails normalizados, dedupe, link a user si existe.
+8. Cancel: organizador (propia) o gerencia (cualquiera) → `cancelled`.
 
 ## Acceptance Criteria
 
 - [x] AC1: Reserva válida en slot libre → 201 `confirmed`.
-- [x] AC2: Horario solapado (misma u otra sala), force false → 409 `ROOM_CONFLICT`.
+- [x] AC2: Misma sala, horario solapado, force false → 409 `ROOM_CONFLICT`.
 - [x] AC3: Reserva para hoy o pasado → 422 `ADVANCE_NOTICE`.
 - [x] AC4: `endTime <= startTime` → 400 `VALIDATION_ERROR`.
 - [x] AC5: Admin no puede crear reserva (403) en v1.
@@ -31,6 +33,8 @@ Crear reservas con validación de anticipación y solapes; cancelar según permi
 - [x] AC7: Usuario no puede cancelar ajena → 403.
 - [x] AC8: InviteeEmails duplicados se guardan una sola vez.
 - [x] AC9: Audit `reservation.created` / `reservation.cancelled`.
+- [x] AC10: Misma persona (organizador/invitado) en otra sala mismo horario → 409 `PARTICIPANT_CONFLICT`.
+- [x] AC11: Salas distintas, personas distintas, mismo horario → 201 permitido.
 
 ## UI placeholder
 

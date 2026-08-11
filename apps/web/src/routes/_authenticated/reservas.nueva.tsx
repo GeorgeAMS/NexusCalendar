@@ -97,6 +97,11 @@ function NewReservationPage() {
       await navigate({ to: "/calendario" });
     },
     onError: (error) => {
+      if (error instanceof ApiError && error.code === "PARTICIPANT_CONFLICT") {
+        setFieldErrors({ form: errorMessage(error) });
+        toast.error("Personas ocupadas en ese horario", { description: error.message });
+        return;
+      }
       if (error instanceof ApiError && error.code === "ROOM_CONFLICT") {
         const details = error.details as unknown as RoomConflictDetails;
         setConflictMessage(error.message);

@@ -124,6 +124,7 @@ export type ApiErrorCode =
   | "ACCOUNT_DISABLED"
   | "EMAIL_TAKEN"
   | "ROOM_CONFLICT"
+  | "PARTICIPANT_CONFLICT"
   | "ADVANCE_NOTICE"
   | "NOT_FOUND"
   | "NETWORK_ERROR";
