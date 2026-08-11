@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "description": "Nexus Calendar API",
+  "engines": {
+    "node": ">=20.11"
+  },
   "scripts": {
     "build": "nest build",
     "start": "nest start",

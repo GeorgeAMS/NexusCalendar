@@ -1,7 +1,8 @@
 # Railway — servicio API (Root Directory = apps/api)
 [build]
 builder = "NIXPACKS"
-buildCommand = "npx prisma generate && npm run build"
+buildCommand = "npx prisma generate && npx nest build"
+nixpacksConfigPath = "nixpacks.toml"
 
 [deploy]
 startCommand = "npx prisma migrate deploy && node dist/main.js"
