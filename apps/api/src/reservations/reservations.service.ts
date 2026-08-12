@@ -222,7 +222,8 @@ export class ReservationsService {
       await this.registerOverride(actor, created, conflicts);
     }
 
-    await this.notifications.reservationInvite({
+    // Fire-and-forget: no esperar SMTP/push (pueden tardar minutos en Railway).
+    this.notifications.reservationInvite({
       reservationId: created.id,
       reservation: toReservationSummary(created),
       recipients: created.invitees.map((invitee) => ({
@@ -287,7 +288,7 @@ export class ReservationsService {
       });
     }
 
-    await this.notifications.reservationCancelled({
+    this.notifications.reservationCancelled({
       reservationId: id,
       reservation: toReservationSummary(reservation),
       cancelledBy: actor.fullName,
@@ -458,7 +459,7 @@ export class ReservationsService {
     });
 
     for (const reservation of displaced) {
-      await this.notifications.reservationOverridden({
+      this.notifications.reservationOverridden({
         reservationId: reservation.id,
         reservation: toReservationSummary(reservation),
         replacement: toReservationSummary(created),

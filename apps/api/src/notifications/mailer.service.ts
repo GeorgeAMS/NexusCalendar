@@ -10,23 +10,54 @@ export interface MailMessage {
   html?: string;
 }
 
+type MailMode = 'brevo' | 'resend' | 'smtp' | 'none';
+
+interface ParsedFrom {
+  name?: string;
+  email: string;
+}
+
 /**
- * Envia correo por SMTP.
- * - Local con Mailhog: SMTP_HOST=localhost, SMTP_PORT=1025, sin user/pass.
- * - Correo real (Gmail/Outlook): host del proveedor + user/pass (app password).
- * Si no hay SMTP_HOST, solo registra el mensaje en el log.
+ * Envia correo.
+ * - Produccion Railway (Hobby): SMTP bloqueado → usar BREVO_API_KEY o RESEND_API_KEY (HTTPS).
+ * - Brevo: permite enviar a CUALQUIER destinatario con un remitente verificado
+ *   (ej. nexuscalendar2026@gmail.com), sin DNS de dominio institucional.
+ * - Resend con onboarding@resend.dev solo entrega al dueño de la cuenta.
+ * - Local: SMTP_HOST=localhost (Mailhog).
  */
 @Injectable()
 export class MailerService implements OnModuleInit {
   private readonly logger = new Logger(MailerService.name);
+  private mode: MailMode = 'none';
   private transporter: Transporter | null = null;
+  private brevoApiKey: string | null = null;
+  private resendApiKey: string | null = null;
 
   constructor(private readonly config: ConfigService) {}
 
   onModuleInit(): void {
+    const brevoKey = this.config.get<string>('BREVO_API_KEY')?.trim();
+    if (brevoKey) {
+      this.mode = 'brevo';
+      this.brevoApiKey = brevoKey;
+      this.logger.log('Correo listo: Brevo API (HTTPS :443)');
+      return;
+    }
+
+    const resendKey = this.config.get<string>('RESEND_API_KEY')?.trim();
+    if (resendKey) {
+      this.mode = 'resend';
+      this.resendApiKey = resendKey;
+      this.logger.log('Correo listo: Resend API (HTTPS :443)');
+      return;
+    }
+
     const host = this.config.get<string>('SMTP_HOST')?.trim();
     if (!host) {
-      this.logger.warn('SMTP_HOST sin configurar: los correos se registraran en el log.');
+      this.mode = 'none';
+      this.logger.warn(
+        'Sin BREVO_API_KEY / RESEND_API_KEY / SMTP_HOST: los correos se registraran en el log.',
+      );
       return;
     }
 
@@ -34,7 +65,6 @@ export class MailerService implements OnModuleInit {
     const user = this.config.get<string>('SMTP_USER')?.trim();
     const pass = this.config.get<string>('SMTP_PASS');
     const secureFlag = this.config.get<string>('SMTP_SECURE');
-    // 465 = TLS implícito; 587 = STARTTLS (secure=false).
     const secure =
       secureFlag === 'true' || secureFlag === '1' || (!secureFlag && port === 465);
 
@@ -43,29 +73,117 @@ export class MailerService implements OnModuleInit {
       port,
       secure,
       auth: user && pass ? { user, pass } : undefined,
-      // Gmail/Outlook en 587 necesitan STARTTLS.
       requireTLS: !secure && port === 587,
-    });
+      family: 4,
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
+    } as nodemailer.TransportOptions);
 
+    this.mode = 'smtp';
     this.logger.log(
-      `SMTP listo: ${host}:${port} (secure=${secure}${user ? `, user=${user}` : ', sin auth'})`,
+      `Correo listo: SMTP ${host}:${port} (secure=${secure}${user ? `, user=${user}` : ', sin auth'})`,
     );
   }
 
   async send(message: MailMessage): Promise<void> {
-    const from = this.config.get<string>('MAIL_FROM') ?? 'Nexus Calendar <nexus@localhost>';
+    const fromRaw =
+      this.config.get<string>('MAIL_FROM') ?? 'Nexus Calendar <nexus@localhost>';
+
+    if (this.mode === 'none') {
+      this.logger.log(`[correo simulado] a ${message.to}: ${message.subject}`);
+      return;
+    }
+
+    if (this.mode === 'brevo') {
+      await this.sendViaBrevo(fromRaw, message);
+      this.logger.log(`Correo enviado (Brevo) a ${message.to}: ${message.subject}`);
+      return;
+    }
+
+    if (this.mode === 'resend') {
+      await this.sendViaResend(fromRaw, message);
+      this.logger.log(`Correo enviado (Resend) a ${message.to}: ${message.subject}`);
+      return;
+    }
 
     if (!this.transporter) {
       this.logger.log(`[correo simulado] a ${message.to}: ${message.subject}`);
       return;
     }
 
-    await this.transporter.sendMail({ from, ...message });
-    this.logger.log(`Correo enviado a ${message.to}: ${message.subject}`);
+    await this.transporter.sendMail({ from: fromRaw, ...message });
+    this.logger.log(`Correo enviado (SMTP) a ${message.to}: ${message.subject}`);
   }
 
-  /** Verifica la conexion SMTP (util al cambiar de Mailhog a Gmail). */
+  private parseFrom(from: string): ParsedFrom {
+    const angled = from.match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
+    if (angled) {
+      const name = angled[1]?.replace(/^["']|["']$/g, '').trim();
+      return {
+        email: angled[2].trim(),
+        ...(name ? { name } : {}),
+      };
+    }
+    return { email: from.trim() };
+  }
+
+  private async sendViaBrevo(fromRaw: string, message: MailMessage): Promise<void> {
+    const sender = this.parseFrom(fromRaw);
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': this.brevoApiKey ?? '',
+        accept: 'application/json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: {
+          email: sender.email,
+          ...(sender.name ? { name: sender.name } : {}),
+        },
+        to: [{ email: message.to }],
+        subject: message.subject,
+        textContent: message.text,
+        ...(message.html ? { htmlContent: message.html } : {}),
+      }),
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      throw new Error(`Brevo HTTP ${response.status}: ${body.slice(0, 300)}`);
+    }
+  }
+
+  private async sendViaResend(from: string, message: MailMessage): Promise<void> {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from,
+        to: [message.to],
+        subject: message.subject,
+        text: message.text,
+        ...(message.html ? { html: message.html } : {}),
+      }),
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      throw new Error(`Resend HTTP ${response.status}: ${body.slice(0, 300)}`);
+    }
+  }
+
   async verify(): Promise<boolean> {
+    if (this.mode === 'brevo') {
+      return Boolean(this.brevoApiKey);
+    }
+    if (this.mode === 'resend') {
+      return Boolean(this.resendApiKey);
+    }
     if (!this.transporter) {
       return false;
     }

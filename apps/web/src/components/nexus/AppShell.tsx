@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, CalendarDays, LogOut, Plus, Users } from "lucide-react";
+import { Bell, CalendarDays, LogOut, Plus, UserRound, Users } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { canCreateReservations, isAdmin, useAuth } from "@/lib/auth";
@@ -57,6 +57,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     items.push({ to: "/admin/usuarios", label: "Usuarios", icon: Users });
   }
   items.push({ to: "/notificaciones", label: "Avisos", icon: Bell });
+  items.push({ to: "/cuenta", label: "Cuenta", icon: UserRound });
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -126,7 +127,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         {user && (
           <div className="relative mx-auto flex w-full max-w-5xl items-center gap-2 px-4 pb-2 text-[11px] text-navy-foreground/65">
-            <span className="truncate">{user.fullName}</span>
+            <Link
+              to="/cuenta"
+              className="truncate transition-colors hover:text-navy-foreground"
+            >
+              {user.fullName}
+            </Link>
             <span className="rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 font-semibold uppercase tracking-wide text-accent">
               {user.role}
             </span>

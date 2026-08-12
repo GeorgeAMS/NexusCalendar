@@ -21,8 +21,10 @@ export interface NotificationMessage {
   title: string;
   /** Resumen de una linea para push e in-app. */
   body: string;
-  /** Cuerpo completo del correo. */
+  /** Cuerpo completo del correo (texto plano). */
   text: string;
+  /** Cuerpo HTML del correo (Resend / clientes con rich text). */
+  html?: string;
 }
 
 export interface NotificationPayload {

@@ -14,6 +14,7 @@ import {
   toPublicUser,
   toSessionUser,
 } from '../users/user.types';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
@@ -118,6 +119,49 @@ export class AuthService {
     this.assertCanSignIn(user);
 
     return this.issueTokens(user);
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto): Promise<{ ok: true }> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user?.passwordHash) {
+      throw new AppError(
+        ErrorCode.NOT_FOUND,
+        'No encontramos tu cuenta.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    this.assertCanSignIn(user);
+
+    if (!(await bcrypt.compare(dto.currentPassword, user.passwordHash))) {
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        'La contrasena actual no es correcta.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (dto.currentPassword === dto.newPassword) {
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        'La nueva contrasena debe ser distinta a la actual.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: await bcrypt.hash(dto.newPassword, BCRYPT_ROUNDS) },
+    });
+
+    await this.audit.record({
+      action: 'user.password_changed',
+      entityType: 'user',
+      entityId: user.id,
+      actorId: user.id,
+    });
+
+    return { ok: true };
   }
 
   /** Resuelve el usuario de un access token y confirma que sigue habilitado. */

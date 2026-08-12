@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as PendienteRouteImport } from './routes/pendiente'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
+import { Route as AuthenticatedCuentaRouteImport } from './routes/_authenticated/cuenta'
 import { Route as AuthenticatedNotificacionesRouteImport } from './routes/_authenticated/notificaciones'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedReservasNuevaRouteImport } from './routes/_authenticated/reservas.nueva'
@@ -42,6 +43,11 @@ const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
   path: '/calendario',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCuentaRoute = AuthenticatedCuentaRouteImport.update({
+  id: '/cuenta',
+  path: '/cuenta',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedNotificacionesRoute =
   AuthenticatedNotificacionesRouteImport.update({
     id: '/notificaciones',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/pendiente': typeof PendienteRoute
   '/registro': typeof RegistroRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
+  '/cuenta': typeof AuthenticatedCuentaRoute
   '/notificaciones': typeof AuthenticatedNotificacionesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/reservas/nueva': typeof AuthenticatedReservasNuevaRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/pendiente': typeof PendienteRoute
   '/registro': typeof RegistroRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
+  '/cuenta': typeof AuthenticatedCuentaRoute
   '/notificaciones': typeof AuthenticatedNotificacionesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/reservas/nueva': typeof AuthenticatedReservasNuevaRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/pendiente': typeof PendienteRoute
   '/registro': typeof RegistroRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
+  '/_authenticated/cuenta': typeof AuthenticatedCuentaRoute
   '/_authenticated/notificaciones': typeof AuthenticatedNotificacionesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/reservas/nueva': typeof AuthenticatedReservasNuevaRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/pendiente'
     | '/registro'
     | '/calendario'
+    | '/cuenta'
     | '/notificaciones'
     | '/admin/usuarios'
     | '/reservas/nueva'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/pendiente'
     | '/registro'
     | '/calendario'
+    | '/cuenta'
     | '/notificaciones'
     | '/admin/usuarios'
     | '/reservas/nueva'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/pendiente'
     | '/registro'
     | '/_authenticated/calendario'
+    | '/_authenticated/cuenta'
     | '/_authenticated/notificaciones'
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/reservas/nueva'
@@ -165,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cuenta': {
+      id: '/_authenticated/cuenta'
+      path: '/cuenta'
+      fullPath: '/cuenta'
+      preLoaderRoute: typeof AuthenticatedCuentaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/notificaciones': {
       id: '/_authenticated/notificaciones'
       path: '/notificaciones'
@@ -191,6 +210,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
+  AuthenticatedCuentaRoute: typeof AuthenticatedCuentaRoute
   AuthenticatedNotificacionesRoute: typeof AuthenticatedNotificacionesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedReservasNuevaRoute: typeof AuthenticatedReservasNuevaRoute
@@ -198,6 +218,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
+  AuthenticatedCuentaRoute: AuthenticatedCuentaRoute,
   AuthenticatedNotificacionesRoute: AuthenticatedNotificacionesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   AuthenticatedReservasNuevaRoute: AuthenticatedReservasNuevaRoute,

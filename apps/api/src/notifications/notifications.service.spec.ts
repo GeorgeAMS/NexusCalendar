@@ -12,6 +12,12 @@ const reservation: ReservationSummary = {
   organizerName: 'Ana Perez',
 };
 
+/** La entrega va en background; dejamos que el microtask de deliver termine. */
+async function flushNotifications(): Promise<void> {
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  await new Promise<void>((resolve) => setImmediate(resolve));
+}
+
 describe('NotificationsService', () => {
   let mailer: { send: jest.Mock };
   let push: { sendToUsers: jest.Mock };
@@ -36,11 +42,12 @@ describe('NotificationsService', () => {
   });
 
   it('manda correo, historial y push a un invitado con cuenta', async () => {
-    await service.reservationInvite({
+    service.reservationInvite({
       reservationId: 'reservation-1',
       reservation,
       recipients: [{ email: 'invitado@clinica.example', userId: 'user-9' }],
     });
+    await flushNotifications();
 
     expect(mailer.send).toHaveBeenCalledTimes(1);
     expect(mailer.send).toHaveBeenCalledWith(
@@ -66,11 +73,12 @@ describe('NotificationsService', () => {
   });
 
   it('a un invitado externo solo le llega correo', async () => {
-    await service.reservationInvite({
+    service.reservationInvite({
       reservationId: 'reservation-1',
       reservation,
       recipients: [{ email: 'externo@otra.example', userId: null }],
     });
+    await flushNotifications();
 
     expect(mailer.send).toHaveBeenCalledTimes(1);
     expect(inbox.record).not.toHaveBeenCalled();
@@ -78,7 +86,7 @@ describe('NotificationsService', () => {
   });
 
   it('deduplica destinatarios repetidos y conserva el userId conocido', async () => {
-    await service.reservationCancelled({
+    service.reservationCancelled({
       reservationId: 'reservation-1',
       reservation,
       cancelledBy: 'Gabriela Gerente',
@@ -87,6 +95,7 @@ describe('NotificationsService', () => {
         { email: 'ana@clinica.example', userId: 'user-1' },
       ],
     });
+    await flushNotifications();
 
     expect(mailer.send).toHaveBeenCalledTimes(1);
     expect(mailer.send).toHaveBeenCalledWith(
@@ -101,11 +110,12 @@ describe('NotificationsService', () => {
   });
 
   it('sin destinatarios no toca ningun canal', async () => {
-    await service.reservationInvite({
+    service.reservationInvite({
       reservationId: 'reservation-1',
       reservation,
       recipients: [],
     });
+    await flushNotifications();
 
     expect(mailer.send).not.toHaveBeenCalled();
     expect(inbox.record).not.toHaveBeenCalled();
@@ -115,14 +125,15 @@ describe('NotificationsService', () => {
   it('un fallo de SMTP no interrumpe el resto de canales ni propaga el error', async () => {
     mailer.send.mockRejectedValue(new Error('SMTP caido'));
 
-    await expect(
+    expect(() =>
       service.accountApproved({
         userId: 'user-1',
         fullName: 'Ana Perez',
         email: 'ana@clinica.example',
         role: UserRole.usuario,
       }),
-    ).resolves.toBeUndefined();
+    ).not.toThrow();
+    await flushNotifications();
 
     expect(inbox.record).toHaveBeenCalled();
     expect(push.sendToUsers).toHaveBeenCalled();
@@ -131,7 +142,7 @@ describe('NotificationsService', () => {
   it('un fallo de push no propaga el error', async () => {
     push.sendToUsers.mockRejectedValue(new Error('VAPID invalido'));
 
-    await expect(
+    expect(() =>
       service.reservationOverridden({
         reservationId: 'reservation-1',
         reservation,
@@ -139,7 +150,8 @@ describe('NotificationsService', () => {
         takenBy: 'Gabriela Gerente',
         recipients: [{ email: 'ana@clinica.example', userId: 'user-1' }],
       }),
-    ).resolves.toBeUndefined();
+    ).not.toThrow();
+    await flushNotifications();
 
     expect(mailer.send).toHaveBeenCalled();
   });

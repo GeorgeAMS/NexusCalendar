@@ -19,6 +19,8 @@ export const authApi = {
   login: (body: { email: string; password: string }) =>
     api<LoginResponse>("/auth/login", { method: "POST", body, auth: false }),
   me: () => api<AuthUser>("/auth/me"),
+  changePassword: (body: { currentPassword: string; newPassword: string }) =>
+    api<{ ok: true }>("/auth/change-password", { method: "POST", body }),
 };
 
 export const roomsApi = {

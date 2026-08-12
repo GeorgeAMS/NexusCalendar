@@ -31,7 +31,7 @@ function expectAppError(error: unknown, code: string, status: number): void {
 
 describe('AuthService', () => {
   let prisma: {
-    user: { findUnique: jest.Mock; create: jest.Mock };
+    user: { findUnique: jest.Mock; create: jest.Mock; update: jest.Mock };
   };
   let jwt: { signAsync: jest.Mock; verifyAsync: jest.Mock };
   let audit: { record: jest.Mock };
@@ -43,7 +43,9 @@ describe('AuthService', () => {
   };
 
   beforeEach(() => {
-    prisma = { user: { findUnique: jest.fn(), create: jest.fn() } };
+    prisma = {
+      user: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
+    };
     jwt = {
       signAsync: jest.fn().mockResolvedValue('signed-token'),
       verifyAsync: jest.fn(),
@@ -201,6 +203,47 @@ describe('AuthService', () => {
       await service
         .userFromAccessToken('token')
         .catch((error: unknown) => expectAppError(error, 'ACCOUNT_DISABLED', 403));
+    });
+  });
+
+  describe('changePassword', () => {
+    const dto = { currentPassword: PASSWORD, newPassword: 'NuevaClave99' };
+
+    it('actualiza el hash, audita y responde ok', async () => {
+      prisma.user.findUnique.mockResolvedValue(buildUser());
+      prisma.user.update.mockResolvedValue(buildUser());
+
+      await expect(service.changePassword('user-1', dto)).resolves.toEqual({ ok: true });
+
+      const updateArg = prisma.user.update.mock.calls[0][0] as {
+        where: { id: string };
+        data: { passwordHash: string };
+      };
+      expect(updateArg.where.id).toBe('user-1');
+      expect(bcrypt.compareSync(dto.newPassword, updateArg.data.passwordHash)).toBe(true);
+      expect(audit.record).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'user.password_changed', actorId: 'user-1' }),
+      );
+    });
+
+    it('rechaza contrasena actual incorrecta', async () => {
+      prisma.user.findUnique.mockResolvedValue(buildUser());
+
+      expect.assertions(4);
+      await service
+        .changePassword('user-1', { ...dto, currentPassword: 'otraClave123' })
+        .catch((error: unknown) => expectAppError(error, 'VALIDATION_ERROR', 400));
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('rechaza si la nueva contrasena es igual a la actual', async () => {
+      prisma.user.findUnique.mockResolvedValue(buildUser());
+
+      expect.assertions(4);
+      await service
+        .changePassword('user-1', { currentPassword: PASSWORD, newPassword: PASSWORD })
+        .catch((error: unknown) => expectAppError(error, 'VALIDATION_ERROR', 400));
+      expect(prisma.user.update).not.toHaveBeenCalled();
     });
   });
 });

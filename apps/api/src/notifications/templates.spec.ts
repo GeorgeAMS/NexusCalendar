@@ -40,8 +40,17 @@ describe('plantillas de notificacion', () => {
     expect(message.subject).toContain('7 de agosto de 2026');
     expect(message.text).toContain('Ana Perez te invito');
     expect(message.text).toContain('Sala: Sala de juntas Nexus');
-    expect(message.text).toContain('08:00 a 09:00');
+    expect(message.text).toContain('Horario: 08:00 a 09:00');
+    expect(message.text).toContain('Organizador: Ana Perez');
     expect(message.text).toContain('Detalle: Revision de indicadores.');
+    expect(message.text).toContain(`${WEB_URL}/calendario`);
+    expect(message.text).toContain('calendar.google.com/calendar/render');
+    expect(message.html).toContain('Sala de juntas Nexus');
+    expect(message.html).toContain(`${WEB_URL}/calendario`);
+    expect(message.html).toContain('Ver en Nexus Calendar');
+    expect(message.html).toContain('Guardar en Google Calendar');
+    expect(message.html).toContain(`${WEB_URL}/brand/nexus-logo-transparent.png`);
+    expect(message.html).toContain('ctz=America%2FBogota');
   });
 
   it('la invitacion omite el detalle cuando no hay descripcion', () => {
@@ -51,6 +60,7 @@ describe('plantillas de notificacion', () => {
     });
 
     expect(message.text).not.toContain('Detalle:');
+    expect(message.html).not.toContain('>Detalle</span>');
   });
 
   it('el override explica quien tomo la sala y con que reunion', () => {
@@ -64,6 +74,8 @@ describe('plantillas de notificacion', () => {
     expect(message.subject).toContain('fue reprogramada por gerencia');
     expect(message.text).toContain('Tomada por: Gabriela Gerente');
     expect(message.text).toContain('"Reunion de gerencia" de 08:30 a 09:00');
+    expect(message.html).toContain('Tomada por');
+    expect(message.html).toContain('Gabriela Gerente');
   });
 
   it('la cancelacion dice quien cancelo y cuando iba a ser', () => {
@@ -75,7 +87,8 @@ describe('plantillas de notificacion', () => {
 
     expect(message.subject).toContain('Cancelada: Comite de calidad');
     expect(message.text).toContain('Cancelada por: Gabriela Gerente');
-    expect(message.text).toContain('08:00 a 09:00');
+    expect(message.text).toContain('Horario: 08:00 a 09:00');
+    expect(message.html).toContain('Cancelada por');
   });
 
   it('todas firman como la clinica y caben en un push', () => {

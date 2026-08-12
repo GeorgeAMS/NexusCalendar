@@ -42,78 +42,98 @@ export class NotificationsService {
     private readonly config: ConfigService,
   ) {}
 
-  async accountApproved(account: {
+  accountApproved(account: {
     userId?: string | null;
     fullName: string;
     email: string;
     role: UserRole;
-  }): Promise<void> {
-    await this.deliver({
-      type: 'account.approved',
-      recipients: [{ email: account.email, userId: account.userId }],
-      message: accountApprovedTemplate({
-        fullName: account.fullName,
-        role: account.role,
-        webUrl: this.webUrl(),
+  }): void {
+    this.enqueue('account.approved', () =>
+      this.deliver({
+        type: 'account.approved',
+        recipients: [{ email: account.email, userId: account.userId }],
+        message: accountApprovedTemplate({
+          fullName: account.fullName,
+          role: account.role,
+          webUrl: this.webUrl(),
+        }),
+        tag: 'account-approved',
       }),
-      tag: 'account-approved',
-    });
+    );
   }
 
-  async reservationInvite(input: {
+  reservationInvite(input: {
     reservationId: string;
     reservation: ReservationSummary;
     recipients: NotificationRecipient[];
-  }): Promise<void> {
-    await this.deliver({
-      type: 'reservation.invite',
-      recipients: input.recipients,
-      message: reservationInviteTemplate({
-        reservation: input.reservation,
-        webUrl: this.webUrl(),
+  }): void {
+    this.enqueue('reservation.invite', () =>
+      this.deliver({
+        type: 'reservation.invite',
+        recipients: input.recipients,
+        message: reservationInviteTemplate({
+          reservation: input.reservation,
+          webUrl: this.webUrl(),
+        }),
+        payload: { reservationId: input.reservationId },
+        tag: `reservation-${input.reservationId}`,
       }),
-      payload: { reservationId: input.reservationId },
-      tag: `reservation-${input.reservationId}`,
-    });
+    );
   }
 
-  async reservationOverridden(input: {
+  reservationOverridden(input: {
     reservationId: string;
     reservation: ReservationSummary;
     replacement: ReservationSummary;
     takenBy: string;
     recipients: NotificationRecipient[];
-  }): Promise<void> {
-    await this.deliver({
-      type: 'reservation.overridden',
-      recipients: input.recipients,
-      message: reservationOverriddenTemplate({
-        reservation: input.reservation,
-        replacement: input.replacement,
-        takenBy: input.takenBy,
-        webUrl: this.webUrl(),
+  }): void {
+    this.enqueue('reservation.overridden', () =>
+      this.deliver({
+        type: 'reservation.overridden',
+        recipients: input.recipients,
+        message: reservationOverriddenTemplate({
+          reservation: input.reservation,
+          replacement: input.replacement,
+          takenBy: input.takenBy,
+          webUrl: this.webUrl(),
+        }),
+        payload: { reservationId: input.reservationId },
+        tag: `reservation-${input.reservationId}`,
       }),
-      payload: { reservationId: input.reservationId },
-      tag: `reservation-${input.reservationId}`,
-    });
+    );
   }
 
-  async reservationCancelled(input: {
+  reservationCancelled(input: {
     reservationId: string;
     reservation: ReservationSummary;
     cancelledBy: string;
     recipients: NotificationRecipient[];
-  }): Promise<void> {
-    await this.deliver({
-      type: 'reservation.cancelled',
-      recipients: input.recipients,
-      message: reservationCancelledTemplate({
-        reservation: input.reservation,
-        cancelledBy: input.cancelledBy,
-        webUrl: this.webUrl(),
+  }): void {
+    this.enqueue('reservation.cancelled', () =>
+      this.deliver({
+        type: 'reservation.cancelled',
+        recipients: input.recipients,
+        message: reservationCancelledTemplate({
+          reservation: input.reservation,
+          cancelledBy: input.cancelledBy,
+          webUrl: this.webUrl(),
+        }),
+        payload: { reservationId: input.reservationId },
+        tag: `reservation-${input.reservationId}`,
       }),
-      payload: { reservationId: input.reservationId },
-      tag: `reservation-${input.reservationId}`,
+    );
+  }
+
+  /**
+   * Encola la entrega en el siguiente tick para no bloquear la respuesta HTTP.
+   * En Railway SMTP a Gmail puede tardar minutos o hacer timeout.
+   */
+  private enqueue(label: string, start: () => Promise<void>): void {
+    setImmediate(() => {
+      void start().catch((error) => {
+        this.logger.error(`Fallo en notificacion ${label}`, error);
+      });
     });
   }
 
@@ -123,20 +143,25 @@ export class NotificationsService {
       return;
     }
 
-    for (const recipient of recipients) {
-      try {
-        await this.mailer.send({
+    const mailResults = await Promise.allSettled(
+      recipients.map((recipient) =>
+        this.mailer.send({
           to: recipient.email,
           subject: request.message.subject,
           text: request.message.text,
-        });
-      } catch (error) {
+          ...(request.message.html ? { html: request.message.html } : {}),
+        }),
+      ),
+    );
+
+    mailResults.forEach((result, index) => {
+      if (result.status === 'rejected') {
         this.logger.error(
-          `No se pudo enviar ${request.type} a ${recipient.email}`,
-          error,
+          `No se pudo enviar ${request.type} a ${recipients[index]?.email}`,
+          result.reason,
         );
       }
-    }
+    });
 
     const userIds = recipients
       .map((recipient) => recipient.userId)

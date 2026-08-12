@@ -113,7 +113,7 @@ export class UsersService {
       metadata: { role, previousStatus: target.status },
     });
 
-    await this.notifications.accountApproved({
+    this.notifications.accountApproved({
       userId: updated.id,
       fullName: updated.fullName,
       email: updated.email,
