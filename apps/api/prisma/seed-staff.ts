@@ -57,7 +57,7 @@ const staff = [
     role: UserRole.usuario,
   },
   {
-    email: 'contabilidad@clinicaregionaldelsanjorge.co',
+    email: 'contabilidad@clinicaregionaldelsanjorge.com',
     fullName: 'Contabilidad',
     role: UserRole.usuario,
   },

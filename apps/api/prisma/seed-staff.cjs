@@ -14,7 +14,7 @@ const staff = [
   { email: 'compras@clinicaregionaldelsanjorge.com', fullName: 'Compras', role: UserRole.usuario },
   { email: 'sst@clinicaregionaldelsanjorge.com', fullName: 'SST', role: UserRole.usuario },
   { email: 'sistemas@clinicaregionaldelsanjorge.com', fullName: 'Sistemas', role: UserRole.usuario },
-  { email: 'contabilidad@clinicaregionaldelsanjorge.co', fullName: 'Contabilidad', role: UserRole.usuario },
+  { email: 'contabilidad@clinicaregionaldelsanjorge.com', fullName: 'Contabilidad', role: UserRole.usuario },
   { email: 'epstic@gmail.com', fullName: 'Epstic', role: UserRole.usuario },
 ];
 
