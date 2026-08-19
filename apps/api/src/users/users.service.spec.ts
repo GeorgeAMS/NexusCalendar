@@ -45,6 +45,7 @@ describe('UsersService', () => {
       findMany: jest.Mock;
       count: jest.Mock;
       update: jest.Mock;
+      create: jest.Mock;
     };
     pushSubscription: { deleteMany: jest.Mock };
     $transaction: jest.Mock;
@@ -60,6 +61,7 @@ describe('UsersService', () => {
         findMany: jest.fn(),
         count: jest.fn(),
         update: jest.fn(),
+        create: jest.fn(),
       },
       pushSubscription: { deleteMany: jest.fn() },
       $transaction: jest.fn(),
@@ -105,6 +107,71 @@ describe('UsersService', () => {
       );
       expect(result.page).toBe(1);
       expect(result.pageSize).toBe(20);
+    });
+  });
+
+  describe('createByAdmin', () => {
+    const dto = {
+      fullName: '  Contabilidad  ',
+      email: 'Contabilidad@Clinica.Example',
+      phone: '3001112233',
+      password: 'Nexus123*',
+      role: UserRole.usuario,
+    };
+
+    it('crea la cuenta activa, hashea password, audita y no expone el hash', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.create.mockImplementation(({ data }: { data: Partial<User> }) =>
+        Promise.resolve(
+          buildUser({
+            ...data,
+            id: 'user-new',
+            role: UserRole.usuario,
+            status: UserStatus.active,
+            approvedById: admin.id,
+            approvedAt: new Date(),
+          }),
+        ),
+      );
+
+      const result = await service.createByAdmin(admin, dto);
+
+      expect(prisma.user.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            email: 'contabilidad@clinica.example',
+            fullName: 'Contabilidad',
+            role: UserRole.usuario,
+            status: UserStatus.active,
+            approvedById: 'admin-1',
+          }),
+        }),
+      );
+      const created = prisma.user.create.mock.calls[0][0].data as { passwordHash: string };
+      expect(created.passwordHash).not.toBe(dto.password);
+      expect(result).not.toHaveProperty('passwordHash');
+      expect(result.status).toBe(UserStatus.active);
+      expect(audit.record).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'user.created_by_admin', actorId: 'admin-1' }),
+      );
+    });
+
+    it('rechaza correos duplicados con EMAIL_TAKEN', async () => {
+      prisma.user.findUnique.mockResolvedValue(buildUser());
+
+      expect.assertions(4);
+      await service
+        .createByAdmin(admin, dto)
+        .catch((error: unknown) => expectAppError(error, 'EMAIL_TAKEN', 409));
+      expect(prisma.user.create).not.toHaveBeenCalled();
+    });
+
+    it('no permite crear un administrador', async () => {
+      expect.assertions(4);
+      await service
+        .createByAdmin(admin, { ...dto, role: UserRole.admin })
+        .catch((error: unknown) => expectAppError(error, 'VALIDATION_ERROR', 400));
+      expect(prisma.user.create).not.toHaveBeenCalled();
     });
   });
 

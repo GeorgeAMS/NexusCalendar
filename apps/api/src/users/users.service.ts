@@ -1,9 +1,12 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma, User, UserRole, UserStatus } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 import { AuditService } from '../audit/audit.service';
 import { AppError, ErrorCode } from '../common/error-codes';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ASSIGNABLE_ROLES } from './dto/assign-role.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { DirectoryUsersDto } from './dto/directory-users.dto';
 import { ListUsersDto } from './dto/list-users.dto';
 import {
@@ -11,8 +14,11 @@ import {
   DirectoryUsersResponse,
   PaginatedUsers,
   PublicUser,
+  normalizeEmail,
   toPublicUser,
 } from './user.types';
+
+const BCRYPT_ROUNDS = 10;
 
 const DEFAULT_PAGE_SIZE = 20;
 const DEFAULT_DIRECTORY_LIMIT = 20;
@@ -82,6 +88,49 @@ export class UsersService {
     });
 
     return { items };
+  }
+
+  async createByAdmin(actor: AuthenticatedUser, dto: CreateUserDto): Promise<PublicUser> {
+    if (!ASSIGNABLE_ROLES.includes(dto.role)) {
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        'El rol debe ser usuario o gerencia.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const email = normalizeEmail(dto.email);
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      throw new AppError(
+        ErrorCode.EMAIL_TAKEN,
+        'Ya existe una cuenta con ese correo.',
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        fullName: dto.fullName.trim(),
+        phone: dto.phone.trim(),
+        passwordHash: await bcrypt.hash(dto.password, BCRYPT_ROUNDS),
+        role: dto.role,
+        status: UserStatus.active,
+        approvedAt: new Date(),
+        approvedById: actor.id,
+      },
+    });
+
+    await this.audit.record({
+      action: 'user.created_by_admin',
+      entityType: 'user',
+      entityId: user.id,
+      actorId: actor.id,
+      metadata: { role: dto.role },
+    });
+
+    return toPublicUser(user);
   }
 
   async approve(actor: AuthenticatedUser, id: string, role: UserRole): Promise<PublicUser> {

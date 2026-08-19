@@ -60,6 +60,13 @@ export const adminApi = {
   setRole: (id: string, role: "usuario" | "gerencia") =>
     api<AuthUser>(`/admin/users/${id}/role`, { method: "PATCH", body: { role } }),
   disable: (id: string) => api<AuthUser>(`/admin/users/${id}`, { method: "DELETE" }),
+  create: (body: {
+    fullName: string;
+    email: string;
+    phone: string;
+    password: string;
+    role: "usuario" | "gerencia";
+  }) => api<AuthUser>("/admin/users", { method: "POST", body }),
 };
 
 export const notificationsApi = {

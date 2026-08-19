@@ -3,9 +3,12 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +18,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { AssignRoleDto } from './dto/assign-role.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { ListUsersDto } from './dto/list-users.dto';
 import { AuthenticatedUser, PaginatedUsers, PublicUser } from './user.types';
 import { UsersService } from './users.service';
@@ -28,6 +32,15 @@ export class AdminUsersController {
   @Get()
   list(@Query() query: ListUsersDto): Promise<PaginatedUsers> {
     return this.users.list(query);
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  create(
+    @CurrentUser() actor: AuthenticatedUser,
+    @Body() dto: CreateUserDto,
+  ): Promise<PublicUser> {
+    return this.users.createByAdmin(actor, dto);
   }
 
   @Patch(':id/approve')

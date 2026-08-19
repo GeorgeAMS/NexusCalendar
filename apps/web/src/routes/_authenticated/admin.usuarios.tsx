@@ -1,11 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Check, Loader2, Search, ShieldAlert, UserMinus, UserX } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { Check, Loader2, Plus, Search, ShieldAlert, UserMinus, UserX } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { adminApi } from "@/lib/api/endpoints";
 import type { AuthUser, UserRole } from "@/lib/api/types";
 import { toastApiError } from "@/lib/api-errors";
@@ -89,6 +100,8 @@ function AdminUsersPage() {
     onError: (error) => toastApiError(error),
   });
 
+  const [createOpen, setCreateOpen] = useState(false);
+
   if (!isAdmin(user)) {
     return (
       <div className="rounded-2xl border border-border bg-card p-6 text-center">
@@ -103,12 +116,24 @@ function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      <header className="animate-rise">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-          Administración
-        </p>
-        <h1 className="font-display text-2xl font-semibold text-foreground">Usuarios</h1>
+      <header className="flex flex-wrap items-end justify-between gap-3 animate-rise">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+            Administración
+          </p>
+          <h1 className="font-display text-2xl font-semibold text-foreground">Usuarios</h1>
+        </div>
+        <Button onClick={() => setCreateOpen(true)}>
+          <Plus className="size-4" />
+          Crear usuario
+        </Button>
       </header>
+
+      <CreateUserDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={refresh}
+      />
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
@@ -227,6 +252,189 @@ function AdminUsersPage() {
         )}
       </section>
     </div>
+  );
+}
+
+function CreateUserDialog({
+  open,
+  onOpenChange,
+  onCreated,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreated: () => void;
+}) {
+  const empty = {
+    fullName: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+    role: "usuario" as "usuario" | "gerencia",
+  };
+  const [values, setValues] = useState(empty);
+  const [errors, setErrors] = useState<Partial<Record<keyof typeof empty, string>>>({});
+
+  const schema = z
+    .object({
+      fullName: z.string().trim().min(3, "Escribe el nombre completo.").max(120),
+      email: z.string().trim().email("Correo inválido.").max(180),
+      phone: z.string().trim().min(7, "Teléfono inválido.").max(20),
+      password: z.string().min(8, "Mínimo 8 caracteres.").max(72),
+      confirmPassword: z.string().min(1, "Confirma la contraseña."),
+      role: z.enum(["usuario", "gerencia"]),
+    })
+    .refine((value) => value.password === value.confirmPassword, {
+      message: "Las contraseñas no coinciden.",
+      path: ["confirmPassword"],
+    });
+
+  const create = useMutation({
+    mutationFn: () =>
+      adminApi.create({
+        fullName: values.fullName.trim(),
+        email: values.email.trim().toLowerCase(),
+        phone: values.phone.trim(),
+        password: values.password,
+        role: values.role,
+      }),
+    onSuccess: (created) => {
+      toast.success(`${created.fullName} creado como ${created.role}`);
+      setValues(empty);
+      setErrors({});
+      onOpenChange(false);
+      onCreated();
+    },
+    onError: (error) => toastApiError(error, "No fue posible crear el usuario."),
+  });
+
+  function update<K extends keyof typeof empty>(field: K, value: (typeof empty)[K]) {
+    setValues((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    const parsed = schema.safeParse(values);
+    if (!parsed.success) {
+      const next: Partial<Record<keyof typeof empty, string>> = {};
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0];
+        if (typeof key === "string" && !(key in next)) {
+          next[key as keyof typeof empty] = issue.message;
+        }
+      }
+      setErrors(next);
+      return;
+    }
+    setErrors({});
+    create.mutate();
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) {
+          setValues(empty);
+          setErrors({});
+        }
+        onOpenChange(next);
+      }}
+    >
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Crear usuario</DialogTitle>
+          <DialogDescription>
+            La cuenta queda activa de inmediato. Entrega la contraseña a la persona.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={onSubmit} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="create-fullName">Nombre completo</Label>
+            <Input
+              id="create-fullName"
+              value={values.fullName}
+              onChange={(event) => update("fullName", event.target.value)}
+            />
+            {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="create-email">Correo</Label>
+            <Input
+              id="create-email"
+              type="email"
+              autoComplete="off"
+              value={values.email}
+              onChange={(event) => update("email", event.target.value)}
+            />
+            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="create-phone">Teléfono</Label>
+            <Input
+              id="create-phone"
+              type="tel"
+              value={values.phone}
+              onChange={(event) => update("phone", event.target.value)}
+            />
+            {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="create-password">Contraseña</Label>
+            <Input
+              id="create-password"
+              type="password"
+              autoComplete="new-password"
+              value={values.password}
+              onChange={(event) => update("password", event.target.value)}
+            />
+            {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="create-confirm">Confirmar contraseña</Label>
+            <Input
+              id="create-confirm"
+              type="password"
+              autoComplete="new-password"
+              value={values.confirmPassword}
+              onChange={(event) => update("confirmPassword", event.target.value)}
+            />
+            {errors.confirmPassword && (
+              <p className="text-xs text-destructive">{errors.confirmPassword}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label>Rol</Label>
+            <RadioGroup
+              value={values.role}
+              onValueChange={(value) => update("role", value as "usuario" | "gerencia")}
+              className="flex gap-4"
+            >
+              <label className="flex items-center gap-2 text-sm">
+                <RadioGroupItem value="usuario" id="role-usuario" />
+                Usuario
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <RadioGroupItem value="gerencia" id="role-gerencia" />
+                Gerencia
+              </label>
+            </RadioGroup>
+          </div>
+          <DialogFooter>
+            <Button type="submit" disabled={create.isPending} className="w-full sm:w-auto">
+              {create.isPending ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Creando…
+                </>
+              ) : (
+                "Crear cuenta"
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
